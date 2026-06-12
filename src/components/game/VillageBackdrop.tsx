@@ -5,35 +5,35 @@ interface VillageBackdropProps {
 }
 
 /**
- * Layered SVG village — moon, distant mountains, temple silhouette, houses,
- * trees. Window/temple glow swells with `brightness` to sell the
- * "village waking up" feeling.
+ * Detailed layered Indian village scene — moon, mountains, peepal trees,
+ * a central temple, rows of village houses with balconies, garlands,
+ * rangoli on the ground, and hanging diya strings.
  */
 function VillageBackdropBase({ brightness }: VillageBackdropProps) {
-  const windowOpacity = 0.15 + brightness * 0.85;
-  const skyTint = brightness; // shift sky from deep night → warm dusk-festival
+  const b = Math.max(0, Math.min(1, brightness));
+  const win = 0.08 + b * 0.92;
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Deep sky gradient — gets warmer as brightness rises */}
+      {/* Sky */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 transition-[background] duration-1000"
         style={{
           background: `linear-gradient(180deg,
-            oklch(${0.12 + skyTint * 0.05} ${0.08 - skyTint * 0.03} ${275 - skyTint * 10}) 0%,
-            oklch(${0.18 + skyTint * 0.08} ${0.09 - skyTint * 0.02} ${280 - skyTint * 30}) 45%,
-            oklch(${0.25 + skyTint * 0.1} ${0.1} ${300 - skyTint * 50}) 75%,
-            oklch(${0.32 + skyTint * 0.08} 0.09 ${330 - skyTint * 30}) 100%)`,
+            oklch(${0.07 + b * 0.08} ${0.06 + b * 0.02} 275) 0%,
+            oklch(${0.12 + b * 0.1} ${0.08} ${280 - b * 30}) 40%,
+            oklch(${0.2 + b * 0.12} ${0.1} ${310 - b * 40}) 75%,
+            oklch(${0.28 + b * 0.1} 0.1 ${340 - b * 30}) 100%)`,
         }}
       />
 
-      {/* Soft ambient bloom near the horizon */}
+      {/* Horizon bloom */}
       <div
-        className="absolute inset-x-0 bottom-0 h-[55%]"
+        className="absolute inset-x-0 bottom-0 h-[55%] transition-opacity duration-1000"
         style={{
           background:
-            "radial-gradient(ellipse at 50% 100%, oklch(0.7 0.18 45 / 0.35) 0%, transparent 70%)",
-          opacity: 0.4 + brightness * 0.6,
+            "radial-gradient(ellipse at 50% 100%, oklch(0.78 0.2 45 / 0.5) 0%, transparent 70%)",
+          opacity: 0.2 + b * 0.8,
         }}
       />
 
@@ -42,166 +42,242 @@ function VillageBackdropBase({ brightness }: VillageBackdropProps) {
         className="absolute"
         style={{
           right: "10%",
-          top: "12%",
+          top: "10%",
           width: 110,
           height: 110,
           borderRadius: "50%",
           background:
             "radial-gradient(circle at 35% 35%, oklch(0.98 0.04 90) 0%, oklch(0.86 0.06 80) 60%, oklch(0.6 0.04 80 / 0) 100%)",
-          boxShadow: "0 0 80px oklch(0.96 0.05 90 / 0.4)",
+          boxShadow: "0 0 80px oklch(0.96 0.05 90 / 0.45)",
         }}
       />
 
-      <svg
-        viewBox="0 0 1600 900"
-        preserveAspectRatio="xMidYMax slice"
-        className="absolute inset-0 h-full w-full"
-      >
+      <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full">
         <defs>
           <linearGradient id="mountains" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="oklch(0.22 0.08 280)" />
-            <stop offset="100%" stopColor="oklch(0.16 0.07 275)" />
+            <stop offset="0%" stopColor="oklch(0.2 0.08 280)" />
+            <stop offset="100%" stopColor="oklch(0.12 0.06 275)" />
           </linearGradient>
           <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={`oklch(${0.28 + brightness * 0.1} 0.08 ${30 - brightness * 5})`} />
-            <stop offset="100%" stopColor={`oklch(${0.12 + brightness * 0.05} 0.05 ${20})`} />
+            <stop offset="0%" stopColor={`oklch(${0.24 + b * 0.12} 0.08 ${30 - b * 5})`} />
+            <stop offset="100%" stopColor={`oklch(${0.08 + b * 0.06} 0.05 20)`} />
           </linearGradient>
           <linearGradient id="houseWall" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={`oklch(${0.35 + brightness * 0.18} 0.08 ${40 - brightness * 5})`} />
-            <stop offset="100%" stopColor={`oklch(${0.2 + brightness * 0.1} 0.06 ${30})`} />
+            <stop offset="0%" stopColor={`oklch(${0.32 + b * 0.2} 0.08 ${40 - b * 5})`} />
+            <stop offset="100%" stopColor={`oklch(${0.16 + b * 0.1} 0.06 30)`} />
+          </linearGradient>
+          <linearGradient id="templeRoof" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={`oklch(${0.45 + b * 0.2} 0.15 30)`} />
+            <stop offset="100%" stopColor={`oklch(${0.25 + b * 0.12} 0.1 25)`} />
           </linearGradient>
         </defs>
 
         {/* Distant mountains */}
         <path
-          d="M 0 620 L 180 480 L 320 560 L 480 430 L 640 540 L 820 460 L 980 530 L 1180 470 L 1360 540 L 1600 490 L 1600 700 L 0 700 Z"
+          d="M 0 600 L 180 460 L 320 540 L 480 410 L 640 520 L 820 440 L 980 510 L 1180 450 L 1360 520 L 1600 470 L 1600 700 L 0 700 Z"
           fill="url(#mountains)"
-          opacity="0.85"
+          opacity="0.9"
+        />
+        {/* Mid hills */}
+        <path
+          d="M 0 660 L 240 580 L 460 640 L 720 560 L 960 630 L 1240 570 L 1600 620 L 1600 700 L 0 700 Z"
+          fill={`oklch(${0.16 + b * 0.06} 0.08 280)`}
+          opacity="0.9"
         />
 
-        {/* Temple silhouette — center back */}
-        <g transform="translate(720 470)" opacity="0.95">
-          <rect x="0" y="80" width="160" height="120" fill="url(#houseWall)" />
-          <polygon points="0,80 80,10 160,80" fill={`oklch(${0.32 + brightness * 0.18} 0.12 35)`} />
-          <polygon points="40,40 80,-30 120,40" fill={`oklch(${0.4 + brightness * 0.2} 0.14 35)`} />
-          <circle cx="80" cy="-40" r="6" fill="oklch(0.92 0.16 80)" opacity={windowOpacity} />
-          {/* Temple door glow */}
-          <rect x="65" y="140" width="30" height="60" rx="15" fill="oklch(0.86 0.18 60)" opacity={windowOpacity} />
+        {/* Peepal trees silhouettes (left & right) */}
+        {[
+          { x: 60, scale: 1.1 },
+          { x: 1500, scale: 1 },
+        ].map((t, i) => (
+          <g key={i} transform={`translate(${t.x} 530) scale(${t.scale})`}>
+            <rect x="-6" y="0" width="12" height="120" fill="#2a1a35" />
+            <circle cx="0" cy="-20" r="70" fill="oklch(0.2 0.08 150)" opacity="0.95" />
+            <circle cx="-40" cy="10" r="44" fill="oklch(0.22 0.08 150)" opacity="0.9" />
+            <circle cx="40" cy="10" r="44" fill="oklch(0.22 0.08 150)" opacity="0.9" />
+            <circle cx="-15" cy="-55" r="36" fill="oklch(0.24 0.09 150)" opacity="0.9" />
+          </g>
+        ))}
+
+        {/* Temple — center back, more architectural */}
+        <g transform="translate(700 420)" opacity="0.98">
+          {/* base */}
+          <rect x="-10" y="170" width="220" height="30" fill={`oklch(${0.3 + b * 0.1} 0.06 30)`} />
+          {/* main body */}
+          <rect x="20" y="100" width="160" height="90" fill="url(#houseWall)" />
+          {/* tiered shikhara */}
+          <polygon points="20,100 100,30 180,100" fill="url(#templeRoof)" />
+          <polygon points="50,55 100,0 150,55" fill={`oklch(${0.5 + b * 0.18} 0.15 30)`} />
+          <polygon points="80,15 100,-25 120,15" fill={`oklch(${0.55 + b * 0.2} 0.15 35)`} />
+          {/* kalash on top */}
+          <circle cx="100" cy="-30" r="5" fill="oklch(0.92 0.16 80)" />
+          <rect x="98" y="-50" width="4" height="20" fill="oklch(0.78 0.18 60)" />
+          {/* doorway glow */}
+          <rect x="86" y="130" width="28" height="60" rx="14" fill="oklch(0.9 0.2 60)" opacity={win} />
+          {/* side pillars */}
+          <rect x="22" y="100" width="8" height="90" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
+          <rect x="170" y="100" width="8" height="90" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
+          {/* temple bells */}
+          <circle cx="50" cy="115" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
+          <circle cx="150" cy="115" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
         </g>
 
-        {/* Row of village houses */}
+        {/* Row of detailed houses */}
         {[
-          { x: 80, w: 180, h: 200, roof: 60 },
-          { x: 290, w: 150, h: 170, roof: 50 },
-          { x: 470, w: 200, h: 220, roof: 70 },
-          { x: 920, w: 170, h: 190, roof: 55 },
-          { x: 1110, w: 200, h: 230, roof: 70 },
-          { x: 1340, w: 180, h: 200, roof: 60 },
+          { x: 60, w: 200, h: 220, roof: 70 },
+          { x: 290, w: 170, h: 190, roof: 55 },
+          { x: 490, w: 220, h: 240, roof: 80 },
+          { x: 920, w: 190, h: 210, roof: 60 },
+          { x: 1130, w: 220, h: 250, roof: 80 },
+          { x: 1380, w: 180, h: 205, roof: 60 },
         ].map((h, i) => (
           <g key={i} transform={`translate(${h.x} ${670 - h.h})`}>
             <rect width={h.w} height={h.h} fill="url(#houseWall)" />
+            {/* roof */}
             <polygon
               points={`0,0 ${h.w / 2},${-h.roof} ${h.w},0`}
-              fill={`oklch(${0.35 + brightness * 0.15} 0.13 30)`}
+              fill={`oklch(${0.32 + b * 0.15} 0.14 30)`}
             />
-            {/* Windows with warm glow */}
-            <rect
-              x={h.w * 0.15}
-              y={h.h * 0.3}
-              width={h.w * 0.2}
-              height={h.h * 0.25}
-              rx="4"
-              fill="oklch(0.86 0.18 60)"
-              opacity={windowOpacity * (0.6 + (i % 3) * 0.15)}
-            />
-            <rect
-              x={h.w * 0.6}
-              y={h.h * 0.3}
-              width={h.w * 0.2}
-              height={h.h * 0.25}
-              rx="4"
-              fill="oklch(0.86 0.18 60)"
-              opacity={windowOpacity * (0.7 + (i % 2) * 0.15)}
-            />
-            {/* Door */}
-            <rect
-              x={h.w * 0.4}
-              y={h.h * 0.6}
-              width={h.w * 0.2}
-              height={h.h * 0.4}
-              rx="6"
-              fill={`oklch(${0.18 + brightness * 0.05} 0.07 30)`}
-            />
-            {/* Marigold garland strung above door */}
+            {/* roof tiles */}
             <path
-              d={`M ${h.w * 0.1} ${h.h * 0.25} Q ${h.w * 0.5} ${h.h * 0.18} ${h.w * 0.9} ${h.h * 0.25}`}
+              d={`M 0 0 L ${h.w} 0`}
+              stroke={`oklch(${0.42 + b * 0.15} 0.13 30)`}
+              strokeWidth="3"
+              opacity="0.6"
+            />
+            {/* balcony */}
+            <rect x={h.w * 0.2} y={h.h * 0.5} width={h.w * 0.6} height="6" fill={`oklch(${0.25 + b * 0.08} 0.06 30)`} />
+            {/* balcony rails */}
+            {[0.25, 0.4, 0.55, 0.7].map((p) => (
+              <rect key={p} x={h.w * p} y={h.h * 0.5 - 10} width="2" height="10" fill={`oklch(${0.3 + b * 0.1} 0.06 30)`} />
+            ))}
+            {/* arched windows */}
+            <path
+              d={`M ${h.w * 0.15} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
+              fill="oklch(0.9 0.18 60)"
+              opacity={win * (0.6 + (i % 3) * 0.15)}
+            />
+            <path
+              d={`M ${h.w * 0.6} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
+              fill="oklch(0.9 0.18 60)"
+              opacity={win * (0.7 + (i % 2) * 0.15)}
+            />
+            {/* door */}
+            <rect
+              x={h.w * 0.42}
+              y={h.h * 0.62}
+              width={h.w * 0.16}
+              height={h.h * 0.38}
+              rx="6"
+              fill={`oklch(${0.16 + b * 0.05} 0.07 30)`}
+            />
+            {/* tiny diya by door */}
+            <circle cx={h.w * 0.36} cy={h.h * 0.95} r="3" fill="oklch(0.92 0.18 70)" opacity={0.4 + b * 0.6}>
+              <animate attributeName="r" values="3;3.6;3" dur="1.6s" repeatCount="indefinite" />
+            </circle>
+            {/* marigold garland */}
+            <path
+              d={`M ${h.w * 0.08} ${h.h * 0.27} Q ${h.w * 0.5} ${h.h * 0.16} ${h.w * 0.92} ${h.h * 0.27}`}
               stroke="oklch(0.78 0.2 55)"
               strokeWidth="3"
-              strokeDasharray="4 2"
+              strokeDasharray="3 2"
               fill="none"
-              opacity={0.5 + brightness * 0.5}
+              opacity={0.5 + b * 0.5}
             />
+            {/* rangoli dot pattern at door */}
+            {b > 0.2 && (
+              <g opacity={b}>
+                {[-12, 0, 12].map((dx) => (
+                  <circle key={dx} cx={h.w * 0.5 + dx} cy={h.h * 1.02} r="2" fill="oklch(0.88 0.18 30)" />
+                ))}
+              </g>
+            )}
           </g>
         ))}
 
         {/* Foreground ground */}
         <path d="M 0 670 L 1600 670 L 1600 900 L 0 900 Z" fill="url(#ground)" />
 
+        {/* Path running through */}
+        <path
+          d="M 200 900 Q 800 750 1400 900"
+          stroke={`oklch(${0.32 + b * 0.12} 0.06 50)`}
+          strokeWidth="40"
+          fill="none"
+          opacity="0.6"
+        />
+
+        {/* Foreground rangoli (only visible when village awakens) */}
+        {b > 0.3 && (
+          <g transform="translate(800 820)" opacity={b}>
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
+              const x = Math.cos((deg * Math.PI) / 180) * 38;
+              const y = Math.sin((deg * Math.PI) / 180) * 18;
+              const c = deg % 90 === 0 ? "#ff5a7a" : "#ffd24d";
+              return <circle key={deg} cx={x} cy={y} r="5" fill={c} />;
+            })}
+            <circle cx="0" cy="0" r="8" fill="#fff" opacity="0.9" />
+          </g>
+        )}
+
         {/* Foreground grass + flower hints */}
-        {Array.from({ length: 40 }).map((_, i) => {
-          const x = (i / 40) * 1600 + Math.random() * 20;
+        {Array.from({ length: 50 }).map((_, i) => {
+          const x = (i / 50) * 1600 + (i * 37) % 23;
           return (
             <circle
               key={i}
               cx={x}
-              cy={690 + Math.random() * 200}
-              r={2 + Math.random() * 3}
-              fill={Math.random() > 0.5 ? "oklch(0.78 0.2 55)" : "oklch(0.7 0.21 15)"}
-              opacity={0.5 + brightness * 0.4}
+              cy={690 + ((i * 53) % 200)}
+              r={2 + (i % 3)}
+              fill={i % 2 ? "oklch(0.78 0.2 55)" : "oklch(0.7 0.21 15)"}
+              opacity={0.4 + b * 0.5}
             />
           );
         })}
       </svg>
 
-      {/* Hanging lantern strings (top edge) */}
-      <div className="absolute inset-x-0 top-0 h-32 pointer-events-none">
-        <svg viewBox="0 0 1600 120" preserveAspectRatio="none" className="h-full w-full">
+      {/* Hanging lantern strings */}
+      <div className="absolute inset-x-0 top-0 h-36 pointer-events-none">
+        <svg viewBox="0 0 1600 130" preserveAspectRatio="none" className="h-full w-full">
           <path
-            d="M 0 20 Q 400 80 800 30 T 1600 20"
+            d="M 0 20 Q 400 90 800 35 T 1600 22"
             stroke="oklch(0.5 0.05 30)"
             strokeWidth="2"
             fill="none"
           />
-          {Array.from({ length: 14 }).map((_, i) => {
-            const x = 60 + i * 110;
-            const y = 30 + Math.sin(i * 0.7) * 25 + 20;
+          {Array.from({ length: 18 }).map((_, i) => {
+            const x = 40 + i * 90;
+            const y = 30 + Math.sin(i * 0.7) * 25 + 25;
             const hue = i % 3 === 0 ? 45 : i % 3 === 1 ? 15 : 80;
             return (
               <g key={i} transform={`translate(${x} ${y})`}>
-                <line x1="0" y1="-10" x2="0" y2="0" stroke="oklch(0.4 0.05 30)" strokeWidth="1" />
+                <line x1="0" y1="-12" x2="0" y2="0" stroke="oklch(0.4 0.05 30)" strokeWidth="1" />
                 <ellipse
                   cx="0"
                   cy="14"
-                  rx="14"
-                  ry="20"
+                  rx="13"
+                  ry="18"
                   fill={`oklch(0.7 0.2 ${hue})`}
-                  opacity={0.5 + brightness * 0.5}
+                  opacity={0.45 + b * 0.55}
                   style={{
-                    filter: `drop-shadow(0 0 ${8 + brightness * 16}px oklch(0.78 0.2 ${hue} / ${0.5 + brightness * 0.5}))`,
+                    filter: `drop-shadow(0 0 ${6 + b * 18}px oklch(0.78 0.2 ${hue} / ${0.4 + b * 0.6}))`,
                   }}
                 />
+                <line x1="0" y1="32" x2="0" y2="38" stroke="oklch(0.4 0.05 30)" strokeWidth="1" />
+                <path d="M -3 38 L 0 44 L 3 38" stroke="oklch(0.5 0.06 30)" strokeWidth="1" fill="none" />
               </g>
             );
           })}
         </svg>
       </div>
 
-      {/* Subtle vignette to focus the eye on the center */}
+      {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 40%, oklch(0.08 0.05 270 / 0.55) 100%)",
+            "radial-gradient(ellipse at center, transparent 35%, oklch(0.05 0.04 270 / 0.7) 100%)",
+          opacity: 1 - b * 0.4,
         }}
       />
     </div>

@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Volume2, VolumeX } from "lucide-react";
 import { TitleScreen } from "@/components/game/TitleScreen";
 import { LevelStage } from "@/components/game/LevelStage";
 import { FinaleScene } from "@/components/game/FinaleScene";
+import { IntroScene } from "@/components/game/IntroScene";
 import { LEVELS } from "@/game/levels";
-import { unlockAudio } from "@/game/audio";
+import { unlockAudio, startMusic, stopMusic } from "@/game/audio";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,15 +27,23 @@ export const Route = createFileRoute("/")({
   component: GamePage,
 });
 
-type Screen = { kind: "title" } | { kind: "level"; index: number } | { kind: "finale" };
+type Screen =
+  | { kind: "title" }
+  | { kind: "intro" }
+  | { kind: "level"; index: number }
+  | { kind: "finale" };
 
 function GamePage() {
   const [screen, setScreen] = useState<Screen>({ kind: "title" });
+  const [muted, setMuted] = useState(false);
 
-  const startGame = useCallback(() => {
+  const begin = useCallback(() => {
     unlockAudio();
-    setScreen({ kind: "level", index: 0 });
+    startMusic(0.45);
+    setScreen({ kind: "intro" });
   }, []);
+
+  const startGameplay = useCallback(() => setScreen({ kind: "level", index: 0 }), []);
 
   const advance = useCallback(() => {
     setScreen((s) => {
@@ -45,17 +55,31 @@ function GamePage() {
 
   const replay = useCallback(() => setScreen({ kind: "title" }), []);
 
+  useEffect(() => {
+    if (muted) stopMusic();
+    else if (screen.kind !== "title") startMusic(0.45);
+  }, [muted, screen.kind]);
+
   return (
-    <main className="fixed inset-0 bg-[oklch(0.1_0.05_270)]">
-      {screen.kind === "title" && <TitleScreen onStart={startGame} />}
+    <main className="fixed inset-0 bg-[oklch(0.06_0.04_270)]">
+      {screen.kind === "title" && <TitleScreen onStart={begin} />}
+      {screen.kind === "intro" && <IntroScene onFinish={startGameplay} />}
       {screen.kind === "level" && (
-        <LevelStage
-          key={screen.index}
-          level={LEVELS[screen.index]}
-          onComplete={advance}
-        />
+        <LevelStage key={screen.index} level={LEVELS[screen.index]} onComplete={advance} />
       )}
       {screen.kind === "finale" && <FinaleScene onReplay={replay} />}
+
+      {/* Global mute toggle */}
+      {screen.kind !== "title" && (
+        <button
+          type="button"
+          onClick={() => setMuted((m) => !m)}
+          aria-label={muted ? "Unmute" : "Mute"}
+          className="absolute bottom-5 left-5 z-50 rounded-full bg-white/12 p-3 text-white backdrop-blur-md ring-1 ring-white/25 hover:bg-white/25 transition"
+        >
+          {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </button>
+      )}
     </main>
   );
 }
