@@ -165,7 +165,8 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         <Diya key={d.id} pos={{ x: d.x, y: d.y }} lit size={d.size} />
       ))}
 
-      {/* Dancing villagers — simple silhouettes */}
+      {/* Dancing villagers — rounded, festive Indian dancers with raised arms.
+          They're clustered on the left and right so they don't sit behind the elephant. */}
       <div className="absolute inset-0 pointer-events-none">
         {villagers.map((v) => (
           <div
@@ -177,27 +178,42 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
               animation: "villager-dance 1s ease-in-out infinite",
               animationDelay: `${v.delay}s`,
               transformOrigin: "50% 100%",
+              transform: v.flip ? "scaleX(-1)" : undefined,
             }}
           >
-            <svg width="38" height="80" viewBox="0 0 38 80">
-              <circle cx="19" cy="10" r="7" fill="#2a1a35" />
-              <path d="M 6 70 L 12 30 Q 19 22 26 30 L 32 70 Z" fill={v.color} />
-              <path d="M 12 32 L 4 12" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
-              <path d="M 26 32 L 34 12" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
-              <path d="M 14 70 L 13 80" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
-              <path d="M 24 70 L 25 80" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
+            <svg width="46" height="86" viewBox="0 0 46 86">
+              {/* head */}
+              <circle cx="23" cy="12" r="8" fill="#3a2a4a" />
+              {/* hair bun */}
+              <circle cx="23" cy="5" r="3.5" fill="#1a0e22" />
+              {/* sari blouse */}
+              <path d="M 12 26 Q 23 22 34 26 L 32 40 Q 23 38 14 40 Z" fill="#2a1a35" />
+              {/* flowing sari skirt — curved bell, not triangular */}
+              <path
+                d="M 14 40 Q 6 60 8 78 Q 23 82 38 78 Q 40 60 32 40 Q 23 44 14 40 Z"
+                fill={v.color}
+              />
+              {/* sari border trim */}
+              <path d="M 8 76 Q 23 80 38 76" stroke="#ffd24d" strokeWidth="2" fill="none" />
+              {/* arms raised in dance */}
+              <path d="M 14 28 Q 4 18 6 6" stroke="#3a2a4a" strokeWidth="4" fill="none" strokeLinecap="round" />
+              <path d="M 32 28 Q 42 18 40 6" stroke="#3a2a4a" strokeWidth="4" fill="none" strokeLinecap="round" />
+              {/* hand bangles */}
+              <circle cx="6" cy="6" r="2.5" fill="#ffd24d" />
+              <circle cx="40" cy="6" r="2.5" fill="#ffd24d" />
+              {/* bindi */}
+              <circle cx="23" cy="11" r="1.4" fill="#ff5a7a" />
             </svg>
           </div>
         ))}
-
       </div>
 
-      {/* Hero elephant */}
+      {/* Hero elephant — moved lower so it stands in front of the crowd, not on top */}
       <div
-        className="absolute left-1/2 bottom-[16%] -translate-x-1/2 pointer-events-none"
+        className="absolute left-1/2 bottom-[4%] -translate-x-1/2 pointer-events-none z-10"
         style={{ animation: "slide-up-fade 1.4s ease-out 0.3s both" }}
       >
-        <Elephant size={380} celebrating />
+        <Elephant size={320} celebrating />
       </div>
 
       {/* Title card */}
