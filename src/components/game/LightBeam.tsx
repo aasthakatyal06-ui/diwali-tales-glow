@@ -24,6 +24,9 @@ function segmentStyle(a: Point, b: Point, w: number, h: number) {
   };
 }
 
+/**
+ * Soft golden beam — thin warm core + glowing halo, no busy gradient.
+ */
 function LightBeamBase({ path, visible, stage }: LightBeamProps) {
   const segs = useMemo(() => {
     if (path.length < 2 || stage.w === 0) return [];
@@ -39,18 +42,26 @@ function LightBeamBase({ path, visible, stage }: LightBeamProps) {
       style={{ opacity: visible ? 1 : 0 }}
     >
       {segs.map((s) => (
-        <div
-          key={s.key}
-          className="absolute h-[6px] origin-left rounded-full"
-          style={{
-            ...s.style,
-            background:
-              "linear-gradient(90deg, oklch(0.92 0.16 85 / 0.95), oklch(0.86 0.18 60 / 0.85))",
-            boxShadow:
-              "0 0 14px oklch(0.92 0.16 85 / 0.95), 0 0 36px oklch(0.86 0.18 60 / 0.75)",
-            animation: "beam-pulse 1.6s ease-in-out infinite",
-          }}
-        />
+        <div key={s.key} className="absolute origin-left" style={s.style}>
+          {/* outer halo */}
+          <div
+            className="absolute -top-[6px] h-[14px] w-full rounded-full"
+            style={{
+              background: "oklch(0.86 0.18 70 / 0.35)",
+              filter: "blur(6px)",
+            }}
+          />
+          {/* core */}
+          <div
+            className="absolute -top-[1.5px] h-[3px] w-full rounded-full"
+            style={{
+              background: "oklch(0.98 0.12 90)",
+              boxShadow:
+                "0 0 10px oklch(0.94 0.16 85 / 0.95), 0 0 22px oklch(0.86 0.18 65 / 0.7)",
+              animation: "beam-pulse 1.8s ease-in-out infinite",
+            }}
+          />
+        </div>
       ))}
     </div>
   );
