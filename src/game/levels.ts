@@ -17,7 +17,7 @@ export const LEVELS: LevelConfig[] = [
     diyas: [{ id: "d1", pos: { x: 75, y: 55 }, size: "lg" }],
     elephantPos: { x: 82, y: 78 },
     hintMirrorId: "m1",
-    brightness: 0.05,
+    brightness: 0.0,
   },
   {
     id: 2,
@@ -34,7 +34,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d3", pos: { x: 85, y: 60 }, size: "lg" },
     ],
     elephantPos: { x: 18, y: 80 },
-    brightness: 0.18,
+    brightness: 0.12,
   },
   {
     id: 3,
@@ -52,7 +52,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d4", pos: { x: 90, y: 65 }, size: "lg" },
     ],
     elephantPos: { x: 80, y: 82 },
-    brightness: 0.32,
+    brightness: 0.26,
   },
   {
     id: 4,
@@ -71,7 +71,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d4", pos: { x: 92, y: 55 }, size: "lg" },
     ],
     elephantPos: { x: 16, y: 82 },
-    brightness: 0.5,
+    brightness: 0.42,
   },
   {
     id: 5,
@@ -92,7 +92,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d5", pos: { x: 90, y: 40 }, size: "lg" },
     ],
     elephantPos: { x: 16, y: 84 },
-    brightness: 0.68,
+    brightness: 0.6,
   },
   {
     id: 6,
@@ -113,6 +113,6 @@ export const LEVELS: LevelConfig[] = [
       { id: "d5", pos: { x: 88, y: 45 }, size: "lg" },
     ],
     elephantPos: { x: 14, y: 84 },
-    brightness: 0.85,
+    brightness: 0.82,
   },
 ];

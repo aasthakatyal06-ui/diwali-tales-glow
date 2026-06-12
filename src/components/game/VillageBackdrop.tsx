@@ -11,46 +11,48 @@ interface VillageBackdropProps {
  */
 function VillageBackdropBase({ brightness }: VillageBackdropProps) {
   const b = Math.max(0, Math.min(1, brightness));
-  const win = 0.08 + b * 0.92;
+  const win = b * b; // windows stay completely dark until brightness rises
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      {/* Sky */}
+      {/* Sky — completely black at b=0, slowly warms */}
       <div
         className="absolute inset-0 transition-[background] duration-1000"
         style={{
           background: `linear-gradient(180deg,
-            oklch(${0.07 + b * 0.08} ${0.06 + b * 0.02} 275) 0%,
-            oklch(${0.12 + b * 0.1} ${0.08} ${280 - b * 30}) 40%,
-            oklch(${0.2 + b * 0.12} ${0.1} ${310 - b * 40}) 75%,
-            oklch(${0.28 + b * 0.1} 0.1 ${340 - b * 30}) 100%)`,
+            oklch(${0.02 + b * 0.13} ${0.02 + b * 0.06} 275) 0%,
+            oklch(${0.04 + b * 0.18} ${0.04 + b * 0.08} ${280 - b * 30}) 40%,
+            oklch(${0.06 + b * 0.26} ${0.05 + b * 0.08} ${310 - b * 40}) 75%,
+            oklch(${0.08 + b * 0.3} ${0.05 + b * 0.08} ${340 - b * 30}) 100%)`,
         }}
       />
 
-      {/* Horizon bloom */}
+      {/* Horizon bloom (off when dark) */}
       <div
         className="absolute inset-x-0 bottom-0 h-[55%] transition-opacity duration-1000"
         style={{
           background:
             "radial-gradient(ellipse at 50% 100%, oklch(0.78 0.2 45 / 0.5) 0%, transparent 70%)",
-          opacity: 0.2 + b * 0.8,
+          opacity: b * 0.9,
         }}
       />
 
-      {/* Moon */}
+      {/* Moon — barely visible at start */}
       <div
-        className="absolute"
+        className="absolute transition-opacity duration-1000"
         style={{
           right: "10%",
           top: "10%",
           width: 110,
           height: 110,
           borderRadius: "50%",
+          opacity: 0.3 + b * 0.7,
           background:
             "radial-gradient(circle at 35% 35%, oklch(0.98 0.04 90) 0%, oklch(0.86 0.06 80) 60%, oklch(0.6 0.04 80 / 0) 100%)",
-          boxShadow: "0 0 80px oklch(0.96 0.05 90 / 0.45)",
+          boxShadow: `0 0 ${40 + b * 60}px oklch(0.96 0.05 90 / ${0.2 + b * 0.35})`,
         }}
       />
+
 
       <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 h-full w-full">
         <defs>
@@ -271,15 +273,21 @@ function VillageBackdropBase({ brightness }: VillageBackdropProps) {
         </svg>
       </div>
 
-      {/* Vignette */}
+      {/* Vignette — heavy when dark, lifts as village wakes */}
       <div
         className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
         style={{
           background:
-            "radial-gradient(ellipse at center, transparent 35%, oklch(0.05 0.04 270 / 0.7) 100%)",
-          opacity: 1 - b * 0.4,
+            "radial-gradient(ellipse at center, transparent 25%, oklch(0.02 0.02 270 / 0.95) 100%)",
+          opacity: 1 - b * 0.5,
         }}
       />
+      {/* Full black overlay that lifts as brightness grows */}
+      <div
+        className="absolute inset-0 pointer-events-none bg-black transition-opacity duration-1000"
+        style={{ opacity: Math.max(0, 0.78 - b * 1.2) }}
+      />
+
     </div>
   );
 }

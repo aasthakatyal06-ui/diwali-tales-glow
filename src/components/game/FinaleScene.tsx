@@ -17,15 +17,15 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
 
   useEffect(() => {
     sfx.finale();
-    // staggered fireworks + cheers
     const intervals: number[] = [];
-    for (let i = 0; i < 14; i++) {
-      intervals.push(window.setTimeout(() => sfx.firework(), 400 + i * 700));
+    // Continuous firework barrage for ~20s
+    for (let i = 0; i < 32; i++) {
+      intervals.push(window.setTimeout(() => sfx.firework(), 300 + i * 650));
     }
-    intervals.push(window.setTimeout(() => sfx.cheer(), 1200));
-    intervals.push(window.setTimeout(() => sfx.cheer(), 5800));
-    intervals.push(window.setTimeout(() => sfx.cheer(), 10000));
-    const t = setTimeout(() => setShowButton(true), 8000);
+    [1200, 5500, 10000, 15000, 19000].forEach((t) =>
+      intervals.push(window.setTimeout(() => sfx.cheer(), t)),
+    );
+    const t = setTimeout(() => setShowButton(true), 14000);
     return () => {
       intervals.forEach(clearTimeout);
       clearTimeout(t);
@@ -34,54 +34,56 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
 
   const fireworks = useMemo(
     () =>
-      Array.from({ length: 18 }).map((_, i) => ({
+      Array.from({ length: 34 }).map((_, i) => ({
         id: i,
-        x: 5 + Math.random() * 90,
-        y: 5 + Math.random() * 45,
-        delay: 0.2 + Math.random() * 9,
-        hue: [45, 15, 80, 320, 200, 0][i % 6],
-        size: 180 + Math.random() * 160,
+        x: 3 + Math.random() * 94,
+        y: 4 + Math.random() * 48,
+        delay: 0.2 + Math.random() * 18,
+        hue: [45, 15, 80, 320, 200, 0, 140][i % 7],
+        size: 180 + Math.random() * 200,
       })),
     [],
   );
 
   const lanterns = useMemo(
     () =>
-      Array.from({ length: 28 }).map((_, i) => ({
+      Array.from({ length: 42 }).map((_, i) => ({
         id: i,
-        x: 5 + Math.random() * 90,
-        delay: Math.random() * 8,
-        dur: 9 + Math.random() * 7,
+        x: 3 + Math.random() * 94,
+        delay: Math.random() * 14,
+        dur: 10 + Math.random() * 8,
         dx: (Math.random() - 0.5) * 120 + "px",
         hue: i % 2 === 0 ? 45 : 15,
-        size: 28 + Math.random() * 22,
+        size: 26 + Math.random() * 26,
       })),
     [],
   );
 
-  // Diyas scattered along the foreground path
+  // Diyas scattered everywhere
   const diyas = useMemo(
     () =>
-      Array.from({ length: 12 }).map((_, i) => ({
+      Array.from({ length: 18 }).map((_, i) => ({
         id: i,
-        x: 6 + (i / 11) * 88 + (Math.random() - 0.5) * 4,
-        y: 82 + Math.sin(i * 0.9) * 4,
+        x: 4 + (i / 17) * 92 + (Math.random() - 0.5) * 5,
+        y: 78 + Math.sin(i * 0.9) * 6,
         size: (i % 3 === 0 ? "lg" : i % 2 === 0 ? "md" : "sm") as "sm" | "md" | "lg",
       })),
     [],
   );
 
-  // Dancing villager silhouettes
+  // Dancing villager silhouettes — more of them, two rows
   const villagers = useMemo(
     () =>
-      Array.from({ length: 7 }).map((_, i) => ({
+      Array.from({ length: 14 }).map((_, i) => ({
         id: i,
-        x: 18 + i * 10 + (Math.random() - 0.5) * 4,
-        delay: Math.random() * 0.8,
-        color: ["#ff5a7a", "#ffd24d", "#7fb6ff", "#c084ff", "#ff9c4d"][i % 5],
+        x: 8 + i * 6.5 + (Math.random() - 0.5) * 3,
+        bottom: i % 2 === 0 ? 14 : 22,
+        delay: Math.random() * 1.2,
+        color: ["#ff5a7a", "#ffd24d", "#7fb6ff", "#c084ff", "#ff9c4d", "#5cd6a6"][i % 6],
       })),
     [],
   );
+
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -165,28 +167,26 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         {villagers.map((v) => (
           <div
             key={v.id}
-            className="absolute bottom-[14%]"
+            className="absolute"
             style={{
               left: `${v.x}%`,
+              bottom: `${v.bottom}%`,
               animation: "villager-dance 1s ease-in-out infinite",
               animationDelay: `${v.delay}s`,
               transformOrigin: "50% 100%",
             }}
           >
             <svg width="38" height="80" viewBox="0 0 38 80">
-              {/* head */}
               <circle cx="19" cy="10" r="7" fill="#2a1a35" />
-              {/* body / sari */}
               <path d="M 6 70 L 12 30 Q 19 22 26 30 L 32 70 Z" fill={v.color} />
-              {/* arms raised */}
               <path d="M 12 32 L 4 12" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
               <path d="M 26 32 L 34 12" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
-              {/* legs */}
               <path d="M 14 70 L 13 80" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
               <path d="M 24 70 L 25 80" stroke="#2a1a35" strokeWidth="3" strokeLinecap="round" />
             </svg>
           </div>
         ))}
+
       </div>
 
       {/* Hero elephant */}
