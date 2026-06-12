@@ -101,27 +101,49 @@ function VillageBackdropBase({ brightness }: VillageBackdropProps) {
           </g>
         ))}
 
-        {/* Temple — center back, more architectural */}
-        <g transform="translate(700 420)" opacity="0.98">
-          {/* base */}
-          <rect x="-10" y="170" width="220" height="30" fill={`oklch(${0.3 + b * 0.1} 0.06 30)`} />
-          {/* main body */}
-          <rect x="20" y="100" width="160" height="90" fill="url(#houseWall)" />
-          {/* tiered shikhara */}
-          <polygon points="20,100 100,30 180,100" fill="url(#templeRoof)" />
-          <polygon points="50,55 100,0 150,55" fill={`oklch(${0.5 + b * 0.18} 0.15 30)`} />
-          <polygon points="80,15 100,-25 120,15" fill={`oklch(${0.55 + b * 0.2} 0.15 35)`} />
-          {/* kalash on top */}
-          <circle cx="100" cy="-30" r="5" fill="oklch(0.92 0.16 80)" />
-          <rect x="98" y="-50" width="4" height="20" fill="oklch(0.78 0.18 60)" />
-          {/* doorway glow */}
-          <rect x="86" y="130" width="28" height="60" rx="14" fill="oklch(0.9 0.2 60)" opacity={win} />
-          {/* side pillars */}
-          <rect x="22" y="100" width="8" height="90" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
-          <rect x="170" y="100" width="8" height="90" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
-          {/* temple bells */}
-          <circle cx="50" cy="115" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
-          <circle cx="150" cy="115" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
+        {/* Temple — onion-dome (Indian mandir) silhouette, NOT a tiered tree */}
+        <g transform="translate(700 380)" opacity="0.98">
+          {/* base platform */}
+          <rect x="-20" y="210" width="240" height="30" fill={`oklch(${0.3 + b * 0.1} 0.06 30)`} />
+          {/* main hall */}
+          <rect x="20" y="120" width="160" height="100" fill="url(#houseWall)" />
+          {/* arched doorway with glow */}
+          <path
+            d="M 80 220 L 80 170 Q 100 148 120 170 L 120 220 Z"
+            fill="oklch(0.9 0.22 60)"
+            opacity={0.3 + win * 0.7}
+          />
+          {/* side mini arched windows */}
+          <path d="M 38 175 L 38 155 Q 48 142 58 155 L 58 175 Z" fill="oklch(0.85 0.2 60)" opacity={win} />
+          <path d="M 142 175 L 142 155 Q 152 142 162 155 L 162 175 Z" fill="oklch(0.85 0.2 60)" opacity={win} />
+          {/* corner pillars */}
+          <rect x="22" y="120" width="10" height="100" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
+          <rect x="168" y="120" width="10" height="100" fill={`oklch(${0.22 + b * 0.08} 0.06 30)`} />
+          {/* roof ledge */}
+          <rect x="14" y="112" width="172" height="12" rx="3" fill="url(#templeRoof)" />
+          {/* central onion dome */}
+          <path
+            d="M 60 112 Q 60 80 75 70 Q 70 50 100 40 Q 130 50 125 70 Q 140 80 140 112 Z"
+            fill="url(#templeRoof)"
+          />
+          {/* dome highlight */}
+          <path d="M 80 70 Q 90 56 100 52" stroke={`oklch(${0.7 + b * 0.15} 0.16 35)`} strokeWidth="3" fill="none" opacity="0.7" />
+          {/* finial / kalash */}
+          <rect x="98" y="22" width="4" height="20" fill={`oklch(${0.65 + b * 0.2} 0.18 60)`} />
+          <circle cx="100" cy="18" r="5" fill={`oklch(${0.9 + b * 0.05} 0.16 80)`} />
+          <path d="M 100 12 L 100 4" stroke={`oklch(${0.9 + b * 0.05} 0.16 80)`} strokeWidth="2" />
+          {/* two smaller side domes */}
+          <path
+            d="M 18 132 Q 18 116 28 110 Q 38 116 38 132 Z"
+            fill="url(#templeRoof)"
+          />
+          <path
+            d="M 162 132 Q 162 116 172 110 Q 182 116 182 132 Z"
+            fill="url(#templeRoof)"
+          />
+          {/* hanging bells */}
+          <circle cx="50" cy="135" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
+          <circle cx="150" cy="135" r="4" fill="oklch(0.78 0.18 70)" opacity={0.5 + b * 0.5} />
         </g>
 
         {/* Row of detailed houses */}
