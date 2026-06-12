@@ -17,6 +17,12 @@ export interface DiyaConfig {
   size?: "sm" | "md" | "lg";
 }
 
+export interface ObstacleConfig {
+  id: string;
+  pos: Point;
+  kind: "stone" | "pot";
+}
+
 export interface LevelConfig {
   id: number;
   title: string;
@@ -26,6 +32,7 @@ export interface LevelConfig {
   mirrors: MirrorConfig[];
   diyas: DiyaConfig[];
   elephantPos: Point;
+  obstacles?: ObstacleConfig[];
   // Pointer hint: which mirror to tap first
   hintMirrorId?: string;
   brightness: number; // 0-1, how much the village has woken up at level start
