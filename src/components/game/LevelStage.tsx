@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { LevelConfig } from "@/game/types";
 import { VillageBackdrop } from "./VillageBackdrop";
 import { Mirror } from "./Mirror";
 import { Diya } from "./Diya";
 import { LightBeam } from "./LightBeam";
 import { Elephant } from "./Elephant";
+import { Obstacle } from "./Obstacle";
 import { Fireflies, FloatingPetals, StarField, SuccessSparkles } from "./Particles";
 import { useStageSize } from "@/hooks/useStageSize";
 import { useLevelState } from "@/hooks/useLevelState";
@@ -20,32 +21,52 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { aligned, tapMirror, allAligned, beamPath, litDiyas } = useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
 
-  // Drive the celebration → next level handoff
+  // Drive the celebration → next level handoff (longer, more intense)
   useEffect(() => {
     if (!allAligned) return;
     sfx.beamConnect();
     const t1 = setTimeout(() => {
-      level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 120));
+      level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 100));
       sfx.levelComplete();
       sfx.cheer();
       setCelebrating(true);
     }, 350);
-    const t2 = setTimeout(onComplete, 3200);
+    // Mini firework barrage during celebration
+    const fireworkTimers: number[] = [];
+    for (let i = 0; i < 8; i++) {
+      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 700 + i * 420));
+    }
+    const t2 = setTimeout(onComplete, 5200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      fireworkTimers.forEach(clearTimeout);
     };
   }, [allAligned, level.diyas, onComplete]);
 
-  // Brightness lifts when the player completes the level — sells the transformation
-  const brightness = Math.min(1, level.brightness + (allAligned ? 0.45 : 0));
+  // Brightness lifts dramatically when the level is solved
+  const brightness = Math.min(1, level.brightness + (allAligned ? 0.55 : 0));
+
+  // Random firework positions for celebration phase
+  const fireworks = useMemo(
+    () =>
+      Array.from({ length: 10 }).map((_, i) => ({
+        id: i,
+        x: 12 + Math.random() * 76,
+        y: 8 + Math.random() * 35,
+        delay: 0.3 + Math.random() * 3.5,
+        hue: [45, 15, 80, 320, 200, 0][i % 6],
+        size: 160 + Math.random() * 160,
+      })),
+    [level.id],
+  );
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
       <VillageBackdrop brightness={brightness} />
       <StarField count={70} />
-      <Fireflies count={20} />
-      {allAligned && <FloatingPetals count={20} />}
+      <Fireflies count={allAligned ? 40 : 20} />
+      {allAligned && <FloatingPetals count={40} />}
 
       {/* Light source — a glowing temple flame at the start of the beam */}
       <div
@@ -64,6 +85,11 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
       </div>
 
       <LightBeam path={beamPath} visible={beamPath.length > 1} stage={size} />
+
+      {/* Decorative obstacles (visual only) */}
+      {level.obstacles?.map((o) => (
+        <Obstacle key={o.id} obstacle={o} />
+      ))}
 
       {/* Diyas (rendered below mirrors so mirrors sit on top) */}
       {level.diyas.map((d) => (
@@ -84,6 +110,44 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
       {/* Celebration sparkles bloom at every newly lit diya */}
       {allAligned && level.diyas.map((d) => <SuccessSparkles key={d.id} x={d.pos.x} y={d.pos.y} />)}
 
+      {/* Celebration fireworks — bright bursts across the upper sky */}
+      {allAligned && (
+        <div className="absolute inset-0 pointer-events-none">
+          {fireworks.map((f) => (
+            <div key={f.id} className="absolute" style={{ left: `${f.x}%`, top: `${f.y}%` }}>
+              <div
+                className="rounded-full"
+                style={{
+                  width: f.size,
+                  height: f.size,
+                  marginLeft: -f.size / 2,
+                  marginTop: -f.size / 2,
+                  background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue}) 0%, oklch(0.78 0.22 ${f.hue} / 0.7) 25%, transparent 70%)`,
+                  animation: "firework-burst 1.8s ease-out infinite",
+                  animationDelay: `${f.delay}s`,
+                }}
+              />
+              {Array.from({ length: 10 }).map((_, k) => {
+                const angle = (k / 10) * Math.PI * 2;
+                return (
+                  <span
+                    key={k}
+                    className="absolute left-0 top-0 h-[2px] origin-left rounded-full"
+                    style={{
+                      width: f.size * 0.5,
+                      background: `linear-gradient(90deg, oklch(0.96 0.2 ${f.hue}), transparent)`,
+                      transform: `rotate(${(angle * 180) / Math.PI}deg)`,
+                      animation: "firework-rays 1.8s ease-out infinite",
+                      animationDelay: `${f.delay}s`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Elephant — large, foreground, always visible */}
       <div
         className="absolute -translate-x-1/2 -translate-y-full pointer-events-none"
@@ -96,18 +160,18 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         />
       </div>
 
-      {/* Title card — small, soft, never blocks the world */}
+      {/* Title card — small, soft, never blocks the world or mirrors */}
       <div
-        className="absolute left-1/2 top-6 -translate-x-1/2 text-center"
+        className="absolute left-1/2 top-4 -translate-x-1/2 text-center pointer-events-none z-30"
         style={{ animation: "slide-up-fade 0.7s ease-out both" }}
       >
-        <div className="font-display text-xs uppercase tracking-[0.3em] text-[oklch(0.86_0.16_75)]/80">
+        <div className="font-display text-[10px] uppercase tracking-[0.3em] text-[oklch(0.86_0.16_75)]/80">
           Level {level.id}
         </div>
-        <h2 className="font-display text-3xl text-white drop-shadow-[0_2px_12px_oklch(0.05_0_0_/_0.8)] md:text-5xl">
+        <h2 className="font-display text-xl text-white drop-shadow-[0_2px_12px_oklch(0.05_0_0_/_0.8)] md:text-3xl">
           {level.title}
         </h2>
-        <p className="mt-1 text-sm text-white/80 md:text-base">{level.subtitle}</p>
+        <p className="mt-0.5 text-xs text-white/70 md:text-sm">{level.subtitle}</p>
       </div>
     </div>
   );

@@ -9,14 +9,13 @@ interface IntroSceneProps {
 }
 
 const LINES = [
-  "Long ago, on the night of Diwali…",
-  "every diya in the village went dark.",
-  "The little elephant was all alone.",
-  "“Will you help me bring the light back?”",
+  "The night Diwali died…",
+  "every light went out.",
+  "“Please… help me bring it back.”",
 ];
 
 /**
- * Emotional storybook intro (~14s). Pitch-black village, sad elephant,
+ * Emotional storybook intro (~8s). Pitch-black village, very sad elephant,
  * big handwritten dialogue lines. The player can skip.
  */
 export function IntroScene({ onFinish }: IntroSceneProps) {
@@ -27,9 +26,9 @@ export function IntroScene({ onFinish }: IntroSceneProps) {
     sfx.shimmer();
     const timers: number[] = [];
     LINES.forEach((_, i) => {
-      timers.push(window.setTimeout(() => setLine(i + 1), 1800 + i * 3000));
+      timers.push(window.setTimeout(() => setLine(i + 1), 900 + i * 2200));
     });
-    timers.push(window.setTimeout(() => onFinish(), 1800 + LINES.length * 3000 + 600));
+    timers.push(window.setTimeout(() => onFinish(), 900 + LINES.length * 2200 + 400));
     return () => timers.forEach(clearTimeout);
   }, [onFinish]);
 
