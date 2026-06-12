@@ -38,7 +38,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
   }, [allAligned, level.diyas, onComplete]);
 
   // Brightness lifts when the player completes the level — sells the transformation
-  const brightness = Math.min(1, level.brightness + (allAligned ? 0.3 : 0));
+  const brightness = Math.min(1, level.brightness + (allAligned ? 0.45 : 0));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
