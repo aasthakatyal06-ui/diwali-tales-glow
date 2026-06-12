@@ -71,18 +71,21 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
     [],
   );
 
-  // Dancing villager silhouettes — more of them, two rows
-  const villagers = useMemo(
-    () =>
-      Array.from({ length: 14 }).map((_, i) => ({
-        id: i,
-        x: 8 + i * 6.5 + (Math.random() - 0.5) * 3,
-        bottom: i % 2 === 0 ? 14 : 22,
-        delay: Math.random() * 1.2,
-        color: ["#ff5a7a", "#ffd24d", "#7fb6ff", "#c084ff", "#ff9c4d", "#5cd6a6"][i % 6],
-      })),
-    [],
-  );
+  // Dancing villagers — rounded silhouettes with raised arms; placed in
+  // two side clusters so the hero elephant in the center isn't covered.
+  const villagers = useMemo(() => {
+    const left = [6, 12, 18, 24, 30, 36];
+    const right = [64, 70, 76, 82, 88, 94];
+    const xs = [...left, ...right];
+    return xs.map((x, i) => ({
+      id: i,
+      x,
+      bottom: i % 2 === 0 ? 8 : 16,
+      delay: Math.random() * 1.2,
+      color: ["#ff5a7a", "#ffd24d", "#7fb6ff", "#c084ff", "#ff9c4d", "#5cd6a6"][i % 6],
+      flip: i >= left.length,
+    }));
+  }, []);
 
 
   return (

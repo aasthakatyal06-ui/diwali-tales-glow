@@ -142,18 +142,26 @@ function ElephantBase({
           <circle cx="136" cy={sad ? 100 : 103} r="2.4" fill="white" />
         </g>
 
-        {/* Sad brows + tear */}
+        {/* Sad brows + tears */}
         {sad && (
           <>
-            <path d="M 82 90 Q 93 95 104 92" stroke="#3a2548" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M 122 92 Q 133 95 144 90" stroke="#3a2548" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M 78 86 Q 93 96 106 90" stroke="#3a2548" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 120 90 Q 133 96 148 86" stroke="#3a2548" strokeWidth="3" fill="none" strokeLinecap="round" />
             <ellipse
               cx="100"
               cy="115"
-              rx="2.4"
-              ry="3.6"
+              rx="2.8"
+              ry="4"
               fill="#7fd4ff"
-              style={{ animation: "tear-drop 2.4s ease-in infinite" }}
+              style={{ animation: "tear-drop 2s ease-in infinite" }}
+            />
+            <ellipse
+              cx="126"
+              cy="115"
+              rx="2.8"
+              ry="4"
+              fill="#7fd4ff"
+              style={{ animation: "tear-drop 2.4s ease-in infinite", animationDelay: "0.6s" }}
             />
           </>
         )}
