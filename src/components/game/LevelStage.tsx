@@ -27,9 +27,10 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
     const t1 = setTimeout(() => {
       level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 120));
       sfx.levelComplete();
+      sfx.cheer();
       setCelebrating(true);
     }, 350);
-    const t2 = setTimeout(onComplete, 2800);
+    const t2 = setTimeout(onComplete, 3200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
