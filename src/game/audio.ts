@@ -23,7 +23,7 @@ function getCtx(): AudioContext | null {
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     ctx = new AC();
     masterGain = ctx.createGain();
-    masterGain.gain.value = 0.9;
+    masterGain.gain.value = 1.0;
     masterGain.connect(ctx.destination);
     return ctx;
   } catch (err) {
