@@ -161,7 +161,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         style={{ left: `${level.elephantPos.x}%`, top: `${level.elephantPos.y}%` }}
       >
         <Elephant
-          size={level.elephantSize ?? Math.min(280, Math.max(200, size.h * 0.4))}
+          size={level.elephantSize ?? Math.max(160, Math.min(size.h * 0.42, size.w * 0.24))}
           pointing={!allAligned}
           celebrating={celebrating}
         />
