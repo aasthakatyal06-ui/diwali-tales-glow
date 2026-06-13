@@ -43,7 +43,7 @@ function markTutorialSeen(id: number) {
 
 export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { ref, size } = useStageSize<HTMLDivElement>();
-  const { aligned, rotations, cleared, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
+  const { aligned, rotations, cleared, locked, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
     useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
@@ -87,7 +87,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   const minDim = Math.min(size.w, size.h) || 600;
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
-  const elephantSize = level.elephantSize ?? Math.max(290, Math.min(440, minDim * 0.55));
+  const elephantSize = level.elephantSize ?? Math.max(360, Math.min(560, minDim * 0.7));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
@@ -119,6 +119,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
       {!allAligned &&
         level.mirrors.map((m) => {
           const rot = rotations[m.id] ?? 0;
+          if (locked[m.id]) return null;
           // arrow points "up" at rot=0 → direction vector (sin, -cos)
           const rad = (rot * Math.PI) / 180;
           const dx = Math.sin(rad);
@@ -172,6 +173,8 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           aligned={!!aligned[m.id]}
           hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id]}
+          locked={!!locked[m.id]}
+          autoRotating={!!m.autoRotate}
           onTap={() => tapMirror(m.id)}
         />
       ))}
