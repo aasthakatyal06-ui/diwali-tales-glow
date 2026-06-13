@@ -39,7 +39,7 @@ function GamePage() {
 
   const begin = useCallback(() => {
     unlockAudio();
-    startMusic("sad", 0.62);
+    startMusic("sad", 0.9);
     setScreen({ kind: "intro" });
   }, []);
 
@@ -60,10 +60,11 @@ function GamePage() {
       stopMusic();
       return;
     }
-    if (screen.kind === "intro") startMusic("sad", 0.62);
+    if (screen.kind === "intro") startMusic("sad", 0.9);
     else if (screen.kind === "level" || screen.kind === "finale")
-      startMusic("festive", 0.58);
+      startMusic("festive", 0.85);
   }, [muted, screen.kind]);
+
 
   return (
     <main className="fixed inset-0 bg-[oklch(0.06_0.04_270)]">

@@ -158,4 +158,47 @@ export const LEVELS: LevelConfig[] = [
       body: "Some mirrors are spinning — tap them at JUST the right moment to lock the light. No hints this time. You can do it!",
     },
   },
+  {
+    id: 7,
+    title: "Prism of Stars",
+    subtitle: "Split mirrors scatter the light — line them ALL up.",
+    source: { x: 4, y: 24 },
+    mirrors: [
+      // Two parallel chains converging on the village. Splitter mirrors fan
+      // the light outward, and spinning + multi-tap mirrors gate every step.
+      { id: "s1", pos: { x: 16, y: 24 }, misalignedRotation: 40, alignedRotation: 0, splitter: true, requiredTaps: 2 },
+      { id: "u1", pos: { x: 30, y: 16 }, misalignedRotation: -40, alignedRotation: 0, spinning: true },
+      { id: "u2", pos: { x: 48, y: 16 }, misalignedRotation: 35, alignedRotation: 0, requiredTaps: 3 },
+      { id: "u3", pos: { x: 66, y: 16 }, misalignedRotation: -30, alignedRotation: 0, spinning: true },
+      { id: "l1", pos: { x: 30, y: 38 }, misalignedRotation: 35, alignedRotation: 0, requiredTaps: 3 },
+      { id: "l2", pos: { x: 48, y: 38 }, misalignedRotation: -35, alignedRotation: 0, spinning: true },
+      { id: "l3", pos: { x: 66, y: 38 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 2 },
+      { id: "s2", pos: { x: 82, y: 26 }, misalignedRotation: -30, alignedRotation: 0, splitter: true, requiredTaps: 2 },
+    ],
+    diyas: [
+      { id: "d1", pos: { x: 14, y: 88 }, size: "sm" },
+      { id: "d2", pos: { x: 30, y: 86 }, size: "sm" },
+      { id: "d3", pos: { x: 46, y: 88 }, size: "md" },
+      { id: "d4", pos: { x: 62, y: 86 }, size: "md" },
+      { id: "d5", pos: { x: 78, y: 88 }, size: "md" },
+      { id: "d6", pos: { x: 94, y: 86 }, size: "lg" },
+    ],
+    elephantPos: { x: 7, y: 100 },
+    elephantSize: 140,
+    obstacles: [
+      { id: "o1", pos: { x: 22, y: 16 }, kind: "stone", blocking: true, moving: true, range: 5 },
+      { id: "o2", pos: { x: 40, y: 16 }, kind: "pot", blocking: true },
+      { id: "o3", pos: { x: 58, y: 16 }, kind: "stone", blocking: true, moving: true, range: 6 },
+      { id: "o4", pos: { x: 22, y: 38 }, kind: "pot", blocking: true, moving: true, range: 4 },
+      { id: "o5", pos: { x: 58, y: 38 }, kind: "stone", blocking: true, moving: true, range: 5 },
+      { id: "o6", pos: { x: 74, y: 38 }, kind: "pot", blocking: true },
+    ],
+    brightness: 0.9,
+    hideTapHints: true,
+    tutorial: {
+      title: "Prism of Stars 🌟",
+      body: "Splitter mirrors send light TWO ways. Align every mirror on BOTH paths — and dodge the moving stones! Good luck.",
+    },
+  },
 ];
+

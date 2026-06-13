@@ -95,15 +95,17 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         style={{ left: `${level.source.x}%`, top: `${level.source.y}%` }}
       >
         <div
-          className="h-16 w-16 rounded-full"
+          className="h-28 w-28 rounded-full"
           style={{
             background:
-              "radial-gradient(circle, oklch(0.95 0.18 85) 0%, oklch(0.78 0.2 45 / 0.6) 50%, transparent 80%)",
-            boxShadow: "0 0 60px oklch(0.86 0.18 75 / 0.9), 0 0 120px oklch(0.78 0.2 45 / 0.6)",
+              "radial-gradient(circle, oklch(0.99 0.18 90) 0%, oklch(0.92 0.2 75 / 0.85) 35%, oklch(0.78 0.22 45 / 0.5) 65%, transparent 85%)",
+            boxShadow:
+              "0 0 90px oklch(0.92 0.2 80 / 1), 0 0 180px oklch(0.82 0.22 55 / 0.85), 0 0 260px oklch(0.7 0.22 40 / 0.6)",
             animation: "breathe 2.4s ease-in-out infinite",
           }}
         />
       </div>
+
 
       <LightBeam path={beamPath} visible={beamPath.length > 1} stage={size} />
 
@@ -131,11 +133,13 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           requiredTaps={m.requiredTaps ?? 1}
           tapsTaken={tapCounts[m.id] ?? 0}
           spinning={!!m.spinning}
+          splitter={!!m.splitter}
           hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id] && Object.keys(aligned).length === 0}
           onTap={(success) => tapMirror(m.id, success ?? true)}
         />
       ))}
+
 
       {allAligned && level.diyas.map((d) => <SuccessSparkles key={d.id} x={d.pos.x} y={d.pos.y} />)}
 

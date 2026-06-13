@@ -9,10 +9,12 @@ interface MirrorProps {
   requiredTaps?: number;
   tapsTaken?: number;
   spinning?: boolean;
+  splitter?: boolean;
   hideHint?: boolean;
   size?: number;
   onTap: (success?: boolean) => void;
 }
+
 
 const SPIN_MS = 2600;
 const ALIGN_TOLERANCE_DEG = 22; // forgiving window for kids
@@ -25,6 +27,8 @@ function MirrorBase({
   requiredTaps = 1,
   tapsTaken = 0,
   spinning = false,
+  splitter = false,
+
   hideHint = false,
   size = 120,
   onTap,
@@ -116,8 +120,15 @@ function MirrorBase({
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
           <defs>
-            {/* Highly reflective glass — bright sky-like radial with chrome streak */}
-            <radialGradient id="mGlass" cx="38%" cy="30%" r="80%">
+            {/* Silvery (idle) glass */}
+            <radialGradient id="mGlassIdle" cx="38%" cy="30%" r="80%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="25%" stopColor="#e8eef5" />
+              <stop offset="60%" stopColor="#9aa6b6" />
+              <stop offset="100%" stopColor="#3a4250" />
+            </radialGradient>
+            {/* Golden (aligned) glass */}
+            <radialGradient id="mGlassGold" cx="38%" cy="30%" r="80%">
               <stop offset="0%" stopColor="#ffffff" />
               <stop offset="22%" stopColor="#fff7e0" />
               <stop offset="55%" stopColor="#ffd49a" />
@@ -129,11 +140,17 @@ function MirrorBase({
               <stop offset="55%" stopColor="#ffffff" stopOpacity="0.85" />
               <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </linearGradient>
-            <linearGradient id="mFrame" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id="mFrameGold" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#fff0b0" />
               <stop offset="45%" stopColor="#e6b13a" />
               <stop offset="100%" stopColor="#7a4a0e" />
             </linearGradient>
+            <linearGradient id="mFrameSilver" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#f0f3f7" />
+              <stop offset="50%" stopColor="#a8b2c0" />
+              <stop offset="100%" stopColor="#4a5260" />
+            </linearGradient>
+
             <linearGradient id="mHandle" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#d49a3a" />
               <stop offset="100%" stopColor="#5a2a0a" />
@@ -151,11 +168,11 @@ function MirrorBase({
           <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
           {/* Outer gold frame */}
-          <circle cx="60" cy="58" r="56" fill="url(#mFrame)" />
+          <circle cx="60" cy="58" r="56" fill={aligned ? "url(#mFrameGold)" : "url(#mFrameSilver)"} />
           <circle cx="60" cy="58" r="46" fill="#7a3a14" />
 
           {/* Reflective glass */}
-          <circle cx="60" cy="58" r="42" fill="url(#mGlass)" />
+          <circle cx="60" cy="58" r="42" fill={aligned ? "url(#mGlassGold)" : "url(#mGlassIdle)"} />
 
           {/* Sky reflection arc — gives "mirror reflecting the world" feel */}
           <g clipPath="url(#mClip)">
@@ -216,6 +233,20 @@ function MirrorBase({
               opacity="0.95"
             />
           )}
+
+          {splitter && (
+            <g opacity={aligned ? 0.95 : 0.55}>
+              <polygon
+                points="60,40 76,68 44,68"
+                fill="none"
+                stroke={aligned ? "#fff7c2" : "#cdd6e0"}
+                strokeWidth="2"
+              />
+              <line x1="60" y1="68" x2="50" y2="84" stroke={aligned ? "#fff7c2" : "#cdd6e0"} strokeWidth="2" />
+              <line x1="60" y1="68" x2="70" y2="84" stroke={aligned ? "#fff7c2" : "#cdd6e0"} strokeWidth="2" />
+            </g>
+          )}
+
         </svg>
       </div>
     </button>
