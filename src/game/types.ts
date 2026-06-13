@@ -8,9 +8,7 @@ export interface MirrorConfig {
   pos: Point;
   misalignedRotation: number;
   alignedRotation: number;
-  /** Number of taps required before this mirror locks aligned. Default 1.
-   *  Higher numbers create a puzzle: rotate through multiple positions
-   *  to find the right one. */
+  /** Number of taps required before this mirror locks aligned. Default 1. */
   requiredTaps?: number;
 }
 
@@ -24,8 +22,12 @@ export interface ObstacleConfig {
   id: string;
   pos: Point;
   kind: "stone" | "pot";
-  /** When true the obstacle blocks the beam; player must tap it to push it aside. */
+  /** When true the obstacle blocks the beam; player must tap it to clear. */
   blocking?: boolean;
+  /** When true the obstacle slides left/right; player must tap to clear. */
+  moving?: boolean;
+  /** Horizontal travel distance in % of stage width (used when moving). */
+  range?: number;
 }
 
 export interface LevelConfig {
@@ -39,5 +41,8 @@ export interface LevelConfig {
   elephantSize?: number;
   obstacles?: ObstacleConfig[];
   hintMirrorId?: string;
+  /** First-time tutorial card shown over the level (only when a new mechanic
+   *  appears for the first time). Kid-friendly, big font. */
+  tutorial?: { title: string; body: string };
   brightness: number;
 }
