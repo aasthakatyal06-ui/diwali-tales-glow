@@ -3,21 +3,19 @@ import type { Point } from "@/game/types";
 
 interface MirrorProps {
   pos: Point;
-  rotation: number; // target rotation in degrees
+  rotation: number;
   aligned: boolean;
   hint?: boolean;
   onTap: () => void;
 }
 
 /**
- * Hand mirror — clearly recognizable: round reflective glass face,
- * gold filigree frame, wooden handle, sky-and-cloud reflection.
- * EVERY tap visually spins the mirror a full turn.
+ * Hand mirror in a warm gold/clay palette — matches the diya so the two
+ * read as cousins (same gold frame, same warm tones). The glass shows a
+ * cream firelight reflection instead of a cool blue sky.
  */
 function MirrorBase({ pos, rotation, aligned, hint, onTap }: MirrorProps) {
-  // Accumulates rotation so every click adds 360° on top of target rotation.
   const [extraSpins, setExtraSpins] = useState(0);
-
   const visualRotation = rotation + extraSpins * 360;
 
   const handleTap = () => {
@@ -29,31 +27,32 @@ function MirrorBase({ pos, rotation, aligned, hint, onTap }: MirrorProps) {
     <button
       type="button"
       onClick={handleTap}
-      className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer focus:outline-none"
+      className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer focus:outline-none z-20"
       style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
       aria-label="Tap mirror"
     >
-      {/* Pulsing hint ring */}
       {hint && !aligned && (
         <span
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
           style={{
-            width: 180,
-            height: 180,
+            width: 200,
+            height: 200,
             background:
-              "radial-gradient(circle, oklch(0.94 0.16 85 / 0.65), transparent 65%)",
+              "radial-gradient(circle, oklch(0.94 0.16 70 / 0.7), transparent 65%)",
             animation: "breathe 1.3s ease-in-out infinite",
           }}
         />
       )}
 
-      {/* Tap-me bubble */}
       {hint && !aligned && (
         <span
-          className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-[#5e468f] shadow-lg"
-          style={{ animation: "float-soft 1.6s ease-in-out infinite" }}
+          className="font-hand absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl px-5 py-2 text-2xl font-bold text-[#5a2a0a] shadow-xl ring-2 ring-[oklch(0.86_0.18_75)]"
+          style={{
+            background: "linear-gradient(180deg,#fff5d6,#ffd994)",
+            animation: "float-soft 1.6s ease-in-out infinite",
+          }}
         >
-          👆 Tap me!
+          Tap me!
         </span>
       )}
 
@@ -65,18 +64,18 @@ function MirrorBase({ pos, rotation, aligned, hint, onTap }: MirrorProps) {
           transform: `rotate(${visualRotation}deg)`,
           transition: "transform 0.9s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
           filter: aligned
-            ? "drop-shadow(0 0 30px oklch(0.94 0.16 85 / 0.95))"
+            ? "drop-shadow(0 0 32px oklch(0.94 0.16 75 / 0.95))"
             : "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6))",
         }}
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
           <defs>
-            {/* sky reflection in the glass */}
-            <linearGradient id="mGlass" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#cfe9ff" />
-              <stop offset="55%" stopColor="#9bc6ee" />
-              <stop offset="100%" stopColor="#5d7aa6" />
-            </linearGradient>
+            {/* warm firelight glass — cream/peach, matching diya flame */}
+            <radialGradient id="mGlass" cx="40%" cy="35%" r="75%">
+              <stop offset="0%" stopColor="#fff6df" />
+              <stop offset="55%" stopColor="#ffd49a" />
+              <stop offset="100%" stopColor="#a35a1e" />
+            </radialGradient>
             <linearGradient id="mFrame" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#fff0b0" />
               <stop offset="45%" stopColor="#e6b13a" />
@@ -88,57 +87,44 @@ function MirrorBase({ pos, rotation, aligned, hint, onTap }: MirrorProps) {
             </linearGradient>
           </defs>
 
-          {/* Handle */}
+          {/* Handle (clay-and-gold like the diya) */}
           <rect x="52" y="95" width="16" height="52" rx="8" fill="url(#mHandle)" />
-          {/* handle wrap */}
-          <rect x="50" y="105" width="20" height="4" fill="#7a4a0e" opacity="0.7" />
-          <rect x="50" y="120" width="20" height="4" fill="#7a4a0e" opacity="0.7" />
-          <rect x="50" y="135" width="20" height="4" fill="#7a4a0e" opacity="0.7" />
-          {/* handle base + tassel */}
+          <rect x="50" y="105" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
+          <rect x="50" y="120" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
+          <rect x="50" y="135" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
           <rect x="46" y="144" width="28" height="8" rx="3" fill="#e6b13a" />
-          <circle cx="60" cy="156" r="4" fill="#ff5a7a" stroke="#fff2cc" strokeWidth="0.8" />
+          {/* tassel — warm marigold red, no cold accents */}
+          <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
-          {/* Outer gold frame (thick, ornate) */}
+          {/* Outer gold frame */}
           <circle cx="60" cy="58" r="56" fill="url(#mFrame)" />
-          {/* Inner dark bezel */}
-          <circle cx="60" cy="58" r="46" fill="#3a2410" />
-          {/* GLASS — clearly mirror-like */}
+          {/* Inner clay bezel (matches diya body) */}
+          <circle cx="60" cy="58" r="46" fill="#7a3a14" />
+          {/* GLASS — warm firelight reflection */}
           <circle cx="60" cy="58" r="42" fill="url(#mGlass)" />
-          {/* Cloud puff reflection */}
-          <ellipse cx="48" cy="46" rx="18" ry="6" fill="#ffffff" opacity="0.75" />
-          <ellipse cx="68" cy="52" rx="10" ry="4" fill="#ffffff" opacity="0.55" />
           {/* Big highlight crescent */}
           <path
             d="M 30 50 A 32 32 0 0 1 80 30"
             stroke="#ffffff"
             strokeWidth="6"
             fill="none"
-            opacity="0.55"
+            opacity="0.6"
             strokeLinecap="round"
           />
-          {/* Small bottom shine */}
-          <ellipse cx="78" cy="82" rx="6" ry="3" fill="#ffffff" opacity="0.45" />
+          <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity="0.55" />
+          <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity="0.4" />
 
-          {/* Decorative jewels around frame */}
+          {/* Decorative beads around frame — all warm gold + marigold */}
           {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
             const r = 51;
             const x = 60 + Math.cos((deg * Math.PI) / 180) * r;
             const y = 58 + Math.sin((deg * Math.PI) / 180) * r;
-            const color = deg % 90 === 0 ? "#ff5a7a" : "#5cc6ff";
+            const color = deg % 90 === 0 ? "#c24a1a" : "#ffd24d";
             return (
-              <circle
-                key={deg}
-                cx={x}
-                cy={y}
-                r="3.2"
-                fill={color}
-                stroke="#fff2cc"
-                strokeWidth="0.8"
-              />
+              <circle key={deg} cx={x} cy={y} r="3" fill={color} stroke="#fff2cc" strokeWidth="0.6" />
             );
           })}
 
-          {/* Aligned: bright glow ring around glass */}
           {aligned && (
             <circle
               cx="60"
