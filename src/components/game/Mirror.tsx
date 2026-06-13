@@ -51,13 +51,13 @@ function MirrorBase({
 
       {hint && !aligned && !hideHint && (
         <span
-          className="font-hand absolute -top-20 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl px-7 py-3 text-4xl font-bold text-[#5a2a0a] shadow-2xl ring-4 ring-[oklch(0.86_0.18_75)]"
+          className="font-hand pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-4 py-1.5 text-lg font-bold text-[#5a2a0a] shadow-lg"
           style={{
             background: "linear-gradient(180deg,#fff5d6,#ffd994)",
             animation: "float-soft 1.6s ease-in-out infinite",
           }}
         >
-          👉 Tap to spin!
+          Tap to spin!
         </span>
       )}
 
