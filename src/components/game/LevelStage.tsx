@@ -7,9 +7,11 @@ import { LightBeam } from "./LightBeam";
 import { Elephant } from "./Elephant";
 import { Obstacle } from "./Obstacle";
 import { Fireflies, StarField, SuccessSparkles } from "./Particles";
+import { LevelCompleteScreen } from "./LevelCompleteScreen";
 import { useStageSize } from "@/hooks/useStageSize";
 import { useLevelState } from "@/hooks/useLevelState";
 import { sfx } from "@/game/audio";
+import { LEVELS } from "@/game/levels";
 
 interface LevelStageProps {
   level: LevelConfig;
@@ -44,23 +46,26 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { aligned, cleared, tapCounts, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
     useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
+  const [showComplete, setShowComplete] = useState(false);
   const [showTutorial, setShowTutorial] = useState(
     !!level.tutorial && !isTutorialSeen(level.id),
   );
 
+  // When all mirrors line up: celebrate, pop fireworks, then show the
+  // "Level Complete" card so the player taps Continue themselves.
   useEffect(() => {
     if (!allAligned) return;
-    const t1 = setTimeout(() => setCelebrating(true), 400);
+    const celebrateTimer = setTimeout(() => setCelebrating(true), 400);
     const fireworkTimers = [900, 1850, 2900].map((delay) =>
       window.setTimeout(() => sfx.firework(), delay),
     );
-    const t2 = setTimeout(onComplete, 7200);
+    const completeTimer = setTimeout(() => setShowComplete(true), 3600);
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
+      clearTimeout(celebrateTimer);
+      clearTimeout(completeTimer);
       fireworkTimers.forEach(clearTimeout);
     };
-  }, [allAligned, onComplete]);
+  }, [allAligned]);
 
   const brightness = Math.min(1, level.brightness + (allAligned ? 0.55 : 0));
 
