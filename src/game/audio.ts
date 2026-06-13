@@ -1,7 +1,6 @@
-// Lightweight Web Audio synth — background music + a few key SFX.
-// Music uses a non-repeating pentatonic scheduler over a soft drone so it
-// never feels loopy. SFX are intentionally minimal: tap, applause, cheer,
-// firework, finale — overlapping sounds have been trimmed back.
+// Lightweight Web Audio score. The music follows authored melodic phrases
+// with accompaniment rather than choosing random notes. Only mirror taps
+// remain as sound effects, keeping the mix gentle and uncluttered.
 
 let ctx: AudioContext | null = null;
 let masterGain: GainNode | null = null;
@@ -70,6 +69,7 @@ function noiseBurst(dur: number, vol = 0.3, freq = 1200, q = 1, delay = 0) {
 
 type MusicMode = "festive" | "sad";
 let musicTimer: number | null = null;
+let musicStep = 0;
 let droneOsc: OscillatorNode | null = null;
 let droneOsc2: OscillatorNode | null = null;
 let musicGain: GainNode | null = null;
@@ -111,8 +111,8 @@ export function startMusic(mode: MusicMode = "festive", volume = 0.55) {
   musicGain.gain.value = volume;
   musicGain.connect(masterGain);
 
-  // Soft drone (two slightly detuned oscillators for warmth)
-  const droneFreq = mode === "sad" ? 130.81 : 196.0; // C3 vs G3
+  // A quiet tanpura-like fifth gives both arrangements a warm foundation.
+  const droneFreq = mode === "sad" ? 110 : 146.83;
   droneOsc = c.createOscillator();
   droneOsc.type = "sine";
   droneOsc.frequency.value = droneFreq;
@@ -120,48 +120,43 @@ export function startMusic(mode: MusicMode = "festive", volume = 0.55) {
   droneOsc2.type = "sine";
   droneOsc2.frequency.value = droneFreq * 1.5;
   const droneGain = c.createGain();
-  droneGain.gain.value = mode === "sad" ? 0.18 : 0.1;
+  droneGain.gain.value = mode === "sad" ? 0.14 : 0.08;
   droneOsc.connect(droneGain);
   droneOsc2.connect(droneGain);
   droneGain.connect(musicGain);
   droneOsc.start();
   droneOsc2.start();
 
-  // Festive: bright pentatonic upper octave (Raag Bilawal-ish).
-  // Sad: low natural-minor descent.
-  const scale =
-    mode === "sad"
-      ? [261.63, 293.66, 311.13, 349.23, 392.0, 415.3] // C minor-ish
-      : [523.25, 587.33, 659.25, 783.99, 880.0, 987.77, 1046.5]; // C major upper
-
-  let lastIdx = mode === "sad" ? scale.length - 1 : 2;
-  let direction = mode === "sad" ? -1 : 1;
+  musicStep = 0;
+  const sadPhrase = [293.66, 261.63, 233.08, 220, 261.63, 246.94, 220, 196];
+  const festiveMelody = [
+    440, 523.25, 587.33, 659.25, 587.33, 523.25, 440, 392,
+    440, 523.25, 659.25, 783.99, 659.25, 587.33, 523.25, 440,
+    392, 440, 523.25, 587.33, 659.25, 587.33, 523.25, 392,
+  ];
+  const festiveBass = [146.83, 146.83, 196, 196, 164.81, 164.81, 220, 196];
 
   const schedule = () => {
-    // Prefer stepwise motion with occasional leaps; flip direction at edges.
-    const leap = Math.random() < 0.18;
-    const step = leap ? (Math.random() < 0.5 ? -2 : 2) : direction;
-    lastIdx += step;
-    if (lastIdx >= scale.length - 1) {
-      lastIdx = scale.length - 1;
-      direction = -1;
-    } else if (lastIdx <= 0) {
-      lastIdx = 0;
-      direction = 1;
+    if (mode === "sad") {
+      const note = sadPhrase[musicStep % sadPhrase.length];
+      musicTone(note, 1.75, "sine", 0, 0.16);
+      if (musicStep % 2 === 0) musicTone(note / 2, 2.8, "triangle", 0, 0.055);
+      musicStep += 1;
+      musicTimer = window.setTimeout(schedule, musicStep % sadPhrase.length === 0 ? 2200 : 1550);
+      return;
     }
-    const f = scale[lastIdx];
-    const dur = mode === "sad" ? 1.6 + Math.random() * 0.9 : 0.7 + Math.random() * 0.5;
-    musicTone(f, dur, "sine", 0, mode === "sad" ? 0.18 : 0.22);
-    // Occasional harmony (a fifth/octave above)
-    if (Math.random() < 0.35) {
-      musicTone(f * (mode === "sad" ? 1.2 : 1.5), dur * 0.85, "triangle", 0.05, 0.09);
+
+    const note = festiveMelody[musicStep % festiveMelody.length];
+    const beat = musicStep % 8;
+    musicTone(note, beat === 3 || beat === 7 ? 0.68 : 0.42, "triangle", 0, 0.16);
+    if (beat % 2 === 0) {
+      const bass = festiveBass[Math.floor(musicStep / 2) % festiveBass.length];
+      musicTone(bass, 0.82, "sine", 0, 0.075);
+      musicTone(bass * 1.5, 0.58, "sine", 0.03, 0.035);
     }
-    // Subtle pulse for festive feel
-    if (mode === "festive" && Math.random() < 0.25) {
-      noiseBurst(0.1, 0.05, 180, 0.6, 0);
-    }
-    const gap = mode === "sad" ? 1500 + Math.random() * 900 : 520 + Math.random() * 380;
-    musicTimer = window.setTimeout(schedule, gap);
+    if (beat === 0 || beat === 4) noiseBurst(0.055, 0.025, 170, 0.7, 0);
+    musicStep += 1;
+    musicTimer = window.setTimeout(schedule, musicStep % festiveMelody.length === 0 ? 1050 : 470);
   };
   schedule();
 }
@@ -207,49 +202,13 @@ export const sfx = {
     tone(1320, 0.16, "triangle", 0, 0.45);
     tone(1760, 0.18, "sine", 0.02, 0.32);
   },
-  // Soft success chime when the whole beam connects — single short chord,
-  // no long melody, no overlapping diya beeps.
-  levelComplete() {
-    [523, 784, 1047].forEach((f, i) => tone(f, 0.4, "sine", i * 0.05, 0.3));
-  },
-  // Sustained crowd applause — many tiny handclaps.
-  applause() {
-    const c = getCtx();
-    if (!c) return;
-    const total = 2.2;
-    for (let i = 0; i < 80; i++) {
-      const t = Math.random() * total;
-      noiseBurst(0.04 + Math.random() * 0.04, 0.09 + Math.random() * 0.06, 2400 + Math.random() * 2000, 1.5, t);
-    }
-    for (let i = 0; i < 4; i++) {
-      noiseBurst(1.6, 0.07, 700 + Math.random() * 500, 0.6, i * 0.25);
-    }
-  },
-  cheer() {
-    for (let i = 0; i < 5; i++) {
-      noiseBurst(0.5, 0.1, 900 + Math.random() * 1400, 0.8, i * 0.08);
-    }
-    [523, 659, 784].forEach((f, i) => tone(f, 0.9, "sine", 0.1 + i * 0.05, 0.18));
-  },
-  firework() {
-    // soft whistle up + airy pop (no harsh sawtooth)
-    tone(320, 0.3, "sine", 0, 0.14);
-    setTimeout(() => {
-      noiseBurst(0.06, 0.22, 220, 0.5);
-      noiseBurst(0.4, 0.16, 2200, 1.2);
-      for (let i = 0; i < 5; i++) {
-        tone(1800 + Math.random() * 2000, 0.12, "sine", 0.1 + i * 0.05, 0.06);
-      }
-    }, 280);
-  },
-  // No-ops kept for backwards compatibility with existing call sites
-  // (users found these overlapping bleeps annoying).
+  levelComplete() {},
+  applause() {},
+  cheer() {},
+  firework() {},
   shimmer() {},
   beamConnect() {},
   diyaLight() {},
   sadIntro() {}, // now handled by startMusic('sad')
-  finale() {
-    // single, satisfying triad — applause carries the rest
-    [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.8, "sine", i * 0.08, 0.3));
-  },
+  finale() {},
 };

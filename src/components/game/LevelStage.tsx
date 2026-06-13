@@ -9,7 +9,6 @@ import { Obstacle } from "./Obstacle";
 import { Fireflies, StarField, SuccessSparkles } from "./Particles";
 import { useStageSize } from "@/hooks/useStageSize";
 import { useLevelState } from "@/hooks/useLevelState";
-import { sfx } from "@/game/audio";
 
 interface LevelStageProps {
   level: LevelConfig;
