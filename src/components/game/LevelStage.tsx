@@ -18,25 +18,28 @@ interface LevelStageProps {
 
 export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { ref, size } = useStageSize<HTMLDivElement>();
-  const { aligned, tapMirror, allAligned, beamPath, litDiyas } = useLevelState(level);
+  const { aligned, cleared, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
+    useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
 
-  // Drive the celebration → next level handoff (longer, more intense)
   useEffect(() => {
     if (!allAligned) return;
     sfx.beamConnect();
     const t1 = setTimeout(() => {
-      level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 100));
+      level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 90));
       sfx.levelComplete();
       sfx.cheer();
       setCelebrating(true);
     }, 350);
-    // Mini firework barrage during celebration
+    // Big firework barrage during the celebration
     const fireworkTimers: number[] = [];
-    for (let i = 0; i < 8; i++) {
-      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 700 + i * 420));
+    for (let i = 0; i < 16; i++) {
+      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 600 + i * 380));
     }
-    const t2 = setTimeout(onComplete, 5200);
+    [1800, 4500].forEach((t) =>
+      fireworkTimers.push(window.setTimeout(() => sfx.cheer(), t)),
+    );
+    const t2 = setTimeout(onComplete, 7200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -44,19 +47,17 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
     };
   }, [allAligned, level.diyas, onComplete]);
 
-  // Brightness lifts dramatically when the level is solved
   const brightness = Math.min(1, level.brightness + (allAligned ? 0.55 : 0));
 
-  // Random firework positions for celebration phase
   const fireworks = useMemo(
     () =>
-      Array.from({ length: 10 }).map((_, i) => ({
+      Array.from({ length: 18 }).map((_, i) => ({
         id: i,
-        x: 12 + Math.random() * 76,
-        y: 8 + Math.random() * 35,
-        delay: 0.3 + Math.random() * 3.5,
-        hue: [45, 15, 80, 320, 200, 0][i % 6],
-        size: 160 + Math.random() * 160,
+        x: 8 + Math.random() * 84,
+        y: 6 + Math.random() * 40,
+        delay: 0.2 + Math.random() * 5.5,
+        hue: [45, 15, 80, 320, 200, 0, 140][i % 7],
+        size: 180 + Math.random() * 200,
       })),
     [level.id],
   );
@@ -65,10 +66,10 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
     <div ref={ref} className="relative h-full w-full overflow-hidden">
       <VillageBackdrop brightness={brightness} />
       <StarField count={70} />
-      <Fireflies count={allAligned ? 40 : 20} />
-      {allAligned && <FloatingPetals count={40} />}
+      <Fireflies count={allAligned ? 55 : 22} />
+      {allAligned && <FloatingPetals count={55} />}
 
-      {/* Light source — a glowing temple flame at the start of the beam */}
+      {/* Light source */}
       <div
         className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{ left: `${level.source.x}%`, top: `${level.source.y}%` }}
@@ -86,14 +87,19 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
       <LightBeam path={beamPath} visible={beamPath.length > 1} stage={size} />
 
-      {/* Decorative obstacles (visual only) */}
-      {level.obstacles?.map((o) => (
-        <Obstacle key={o.id} obstacle={o} />
-      ))}
-
-      {/* Diyas (rendered below mirrors so mirrors sit on top) */}
+      {/* Diyas — rendered low (on the ground row), not floating in front of houses */}
       {level.diyas.map((d) => (
         <Diya key={d.id} pos={d.pos} lit={litDiyas.has(d.id)} size={d.size} />
+      ))}
+
+      {/* Blocking obstacles — must be tapped before beam can pass */}
+      {level.obstacles?.map((o) => (
+        <Obstacle
+          key={o.id}
+          obstacle={o}
+          cleared={!!cleared[o.id]}
+          onTap={() => tapObstacle(o.id)}
+        />
       ))}
 
       {level.mirrors.map((m) => (
@@ -107,10 +113,8 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         />
       ))}
 
-      {/* Celebration sparkles bloom at every newly lit diya */}
       {allAligned && level.diyas.map((d) => <SuccessSparkles key={d.id} x={d.pos.x} y={d.pos.y} />)}
 
-      {/* Celebration fireworks — bright bursts across the upper sky */}
       {allAligned && (
         <div className="absolute inset-0 pointer-events-none">
           {fireworks.map((f) => (
@@ -123,12 +127,12 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
                   marginLeft: -f.size / 2,
                   marginTop: -f.size / 2,
                   background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue}) 0%, oklch(0.78 0.22 ${f.hue} / 0.7) 25%, transparent 70%)`,
-                  animation: "firework-burst 1.8s ease-out infinite",
+                  animation: "firework-burst 2s ease-out infinite",
                   animationDelay: `${f.delay}s`,
                 }}
               />
-              {Array.from({ length: 10 }).map((_, k) => {
-                const angle = (k / 10) * Math.PI * 2;
+              {Array.from({ length: 12 }).map((_, k) => {
+                const angle = (k / 12) * Math.PI * 2;
                 return (
                   <span
                     key={k}
@@ -137,7 +141,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
                       width: f.size * 0.5,
                       background: `linear-gradient(90deg, oklch(0.96 0.2 ${f.hue}), transparent)`,
                       transform: `rotate(${(angle * 180) / Math.PI}deg)`,
-                      animation: "firework-rays 1.8s ease-out infinite",
+                      animation: "firework-rays 2s ease-out infinite",
                       animationDelay: `${f.delay}s`,
                     }}
                   />
@@ -148,30 +152,30 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         </div>
       )}
 
-      {/* Elephant — large, foreground, always visible */}
+      {/* Elephant — sized per-level so it never covers the mirrors */}
       <div
         className="absolute -translate-x-1/2 -translate-y-full pointer-events-none"
         style={{ left: `${level.elephantPos.x}%`, top: `${level.elephantPos.y}%` }}
       >
         <Elephant
-          size={Math.min(360, Math.max(220, size.h * 0.55))}
+          size={level.elephantSize ?? Math.min(280, Math.max(200, size.h * 0.4))}
           pointing={!allAligned}
           celebrating={celebrating}
         />
       </div>
 
-      {/* Title card — small, soft, never blocks the world or mirrors */}
+      {/* Title card — top of screen, never near the mirrors */}
       <div
-        className="absolute left-1/2 top-4 -translate-x-1/2 text-center pointer-events-none z-30"
+        className="absolute left-1/2 top-3 -translate-x-1/2 text-center pointer-events-none z-30"
         style={{ animation: "slide-up-fade 0.7s ease-out both" }}
       >
         <div className="font-display text-[10px] uppercase tracking-[0.3em] text-[oklch(0.86_0.16_75)]/80">
           Level {level.id}
         </div>
-        <h2 className="font-display text-xl text-white drop-shadow-[0_2px_12px_oklch(0.05_0_0_/_0.8)] md:text-3xl">
+        <h2 className="font-display text-xl text-white drop-shadow-[0_2px_12px_oklch(0.05_0_0_/_0.8)] md:text-2xl">
           {level.title}
         </h2>
-        <p className="mt-0.5 text-xs text-white/70 md:text-sm">{level.subtitle}</p>
+        <p className="mt-0.5 text-[11px] text-white/70 md:text-xs">{level.subtitle}</p>
       </div>
     </div>
   );

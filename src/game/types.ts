@@ -1,14 +1,13 @@
 export interface Point {
-  x: number; // 0-100 (% of stage width)
-  y: number; // 0-100 (% of stage height)
+  x: number;
+  y: number;
 }
 
 export interface MirrorConfig {
   id: string;
   pos: Point;
-  // Mirror has two states: misaligned (tilt) and aligned (correct). Children only need to tap to align.
-  misalignedRotation: number; // degrees
-  alignedRotation: number; // degrees
+  misalignedRotation: number;
+  alignedRotation: number;
 }
 
 export interface DiyaConfig {
@@ -21,6 +20,8 @@ export interface ObstacleConfig {
   id: string;
   pos: Point;
   kind: "stone" | "pot";
+  /** When true the obstacle blocks the beam; player must tap it to push it aside. */
+  blocking?: boolean;
 }
 
 export interface LevelConfig {
@@ -28,12 +29,11 @@ export interface LevelConfig {
   title: string;
   subtitle: string;
   source: Point;
-  // Beam path is source -> mirrors (in order) -> diyas (last diya is endpoint)
   mirrors: MirrorConfig[];
   diyas: DiyaConfig[];
   elephantPos: Point;
+  elephantSize?: number;
   obstacles?: ObstacleConfig[];
-  // Pointer hint: which mirror to tap first
   hintMirrorId?: string;
-  brightness: number; // 0-1, how much the village has woken up at level start
+  brightness: number;
 }

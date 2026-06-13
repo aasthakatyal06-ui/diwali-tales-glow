@@ -219,14 +219,7 @@ function ElephantBase({
         )}
       </svg>
 
-      {pointing && (
-        <div
-          className="absolute -right-2 top-12 text-3xl"
-          style={{ animation: "float-soft 1.2s ease-in-out infinite" }}
-        >
-          ✨
-        </div>
-      )}
+      {/* pointing indicator removed — was a stray corner sparkle */}
     </div>
   );
 }
