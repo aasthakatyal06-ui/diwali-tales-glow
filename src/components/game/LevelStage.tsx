@@ -18,7 +18,7 @@ interface LevelStageProps {
 
 export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { ref, size } = useStageSize<HTMLDivElement>();
-  const { aligned, cleared, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
+  const { aligned, cleared, tapCounts, tapMirror, tapObstacle, allAligned, beamPath, litDiyas } =
     useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
 
@@ -28,18 +28,18 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
     const t1 = setTimeout(() => {
       level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 90));
       sfx.levelComplete();
-      sfx.cheer();
+      sfx.applause();
       setCelebrating(true);
     }, 350);
-    // Big firework barrage during the celebration
+    // Tighter, more cohesive firework barrage — fewer bursts, evenly paced
     const fireworkTimers: number[] = [];
-    for (let i = 0; i < 16; i++) {
-      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 600 + i * 380));
+    for (let i = 0; i < 7; i++) {
+      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 700 + i * 700));
     }
-    [1800, 4500].forEach((t) =>
+    [2400, 5200].forEach((t) =>
       fireworkTimers.push(window.setTimeout(() => sfx.cheer(), t)),
     );
-    const t2 = setTimeout(onComplete, 7200);
+    const t2 = setTimeout(onComplete, 6800);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -49,15 +49,16 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   const brightness = Math.min(1, level.brightness + (allAligned ? 0.55 : 0));
 
+  // Cohesive warm palette only — gold, marigold, rose. No cool blues/greens.
   const fireworks = useMemo(
     () =>
-      Array.from({ length: 18 }).map((_, i) => ({
+      Array.from({ length: 8 }).map((_, i) => ({
         id: i,
-        x: 8 + Math.random() * 84,
-        y: 6 + Math.random() * 40,
-        delay: 0.2 + Math.random() * 5.5,
-        hue: [45, 15, 80, 320, 200, 0, 140][i % 7],
-        size: 180 + Math.random() * 200,
+        x: 14 + (i / 7) * 72 + (Math.random() - 0.5) * 6,
+        y: 10 + Math.random() * 30,
+        delay: 0.4 + i * 0.55,
+        hue: [45, 30, 15, 60, 75, 25, 50, 40][i],
+        size: 180 + Math.random() * 100,
       })),
     [level.id],
   );
