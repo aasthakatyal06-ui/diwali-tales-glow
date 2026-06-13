@@ -62,8 +62,9 @@ function GamePage() {
     }
     if (screen.kind === "intro") startMusic("sad", 0.9);
     else if (screen.kind === "level" || screen.kind === "finale")
-      startMusic("festive", 0.85);
+      startMusic("festive", 1.0);
   }, [muted, screen.kind]);
+
 
 
   return (

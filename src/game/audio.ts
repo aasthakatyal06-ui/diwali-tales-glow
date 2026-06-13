@@ -94,7 +94,35 @@ function attachResumeListeners() {
 
 let listenersAttached = false;
 
-export function startMusic(mode: MusicMode = "festive", volume = 0.85) {
+function fadeOut(audio: HTMLAudioElement, durationMs: number) {
+  const startVol = audio.volume;
+  const steps = 24;
+  const stepMs = durationMs / steps;
+  let i = 0;
+  const id = window.setInterval(() => {
+    i += 1;
+    audio.volume = Math.max(0, startVol * (1 - i / steps));
+    if (i >= steps) {
+      window.clearInterval(id);
+      audio.pause();
+      audio.src = "";
+    }
+  }, stepMs);
+}
+
+function fadeIn(audio: HTMLAudioElement, target: number, durationMs: number) {
+  audio.volume = 0;
+  const steps = 20;
+  const stepMs = durationMs / steps;
+  let i = 0;
+  const id = window.setInterval(() => {
+    i += 1;
+    audio.volume = Math.min(target, target * (i / steps));
+    if (i >= steps) window.clearInterval(id);
+  }, stepMs);
+}
+
+export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
   if (typeof window === "undefined") return;
 
   if (!listenersAttached) {
@@ -102,30 +130,35 @@ export function startMusic(mode: MusicMode = "festive", volume = 0.85) {
     listenersAttached = true;
   }
 
-  // Same track already playing — just update volume, don't restart.
   if (currentMode === mode && musicAudio) {
     musicAudio.volume = Math.min(1, volume);
     if (musicAudio.paused) void musicAudio.play().catch(() => {});
     return;
   }
 
-  stopMusic();
+  // Crossfade out the previous track instead of cutting it.
+  if (musicAudio) {
+    const old = musicAudio;
+    musicAudio = null;
+    fadeOut(old, 900);
+  }
+  if (watchdog !== null) {
+    window.clearInterval(watchdog);
+    watchdog = null;
+  }
+
   currentMode = mode;
   const audio = new Audio(mode === "sad" ? sadMusicUrl : festiveMusicUrl);
   audio.loop = true;
   audio.preload = "auto";
-  audio.volume = Math.min(1, volume);
-  // Belt-and-suspenders loop: some browsers occasionally drop loop=true on
-  // long files. If 'ended' ever fires, jump back and play again.
   audio.addEventListener("ended", () => {
     audio.currentTime = 0;
     void audio.play().catch(() => {});
   });
   musicAudio = audio;
+  fadeIn(audio, Math.min(1, volume), 700);
   void audio.play().catch(() => {});
 
-  // Watchdog: every 2s, if the element should be playing but isn't, resume.
-  if (watchdog !== null) window.clearInterval(watchdog);
   watchdog = window.setInterval(() => {
     if (musicAudio && currentMode && musicAudio.paused) {
       void musicAudio.play().catch(() => {});
@@ -140,9 +173,10 @@ export function stopMusic() {
     watchdog = null;
   }
   if (musicAudio) {
-    musicAudio.pause();
-    musicAudio.src = "";
+    const old = musicAudio;
     musicAudio = null;
+    fadeOut(old, 700);
+
   }
 }
 
