@@ -3,23 +3,33 @@ import type { LevelConfig } from "@/game/types";
 import { sfx } from "@/game/audio";
 
 export function useLevelState(level: LevelConfig) {
-  const [aligned, setAligned] = useState<Record<string, boolean>>({});
+  const [tapCounts, setTapCounts] = useState<Record<string, number>>({});
   const [cleared, setCleared] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    setAligned({});
+    setTapCounts({});
     setCleared({});
   }, [level.id]);
 
   const tapMirror = useCallback((id: string) => {
     sfx.mirrorTap();
-    setAligned((prev) => ({ ...prev, [id]: true }));
+    setTapCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
   }, []);
 
   const tapObstacle = useCallback((id: string) => {
     sfx.shimmer();
     setCleared((prev) => ({ ...prev, [id]: true }));
   }, []);
+
+  const aligned = useMemo(() => {
+    const out: Record<string, boolean> = {};
+    for (const m of level.mirrors) {
+      const need = m.requiredTaps ?? 1;
+      const taps = tapCounts[m.id] ?? 0;
+      out[m.id] = taps >= need;
+    }
+    return out;
+  }, [level.mirrors, tapCounts]);
 
   const blockingObstacles = useMemo(
     () => (level.obstacles ?? []).filter((o) => o.blocking),
@@ -56,5 +66,5 @@ export function useLevelState(level: LevelConfig) {
     return set;
   }, [allAligned, level.diyas]);
 
-  return { aligned, cleared, tapMirror, tapObstacle, allAligned, beamPath, litDiyas };
+  return { aligned, cleared, tapCounts, tapMirror, tapObstacle, allAligned, beamPath, litDiyas };
 }

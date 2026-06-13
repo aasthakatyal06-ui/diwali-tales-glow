@@ -3,8 +3,12 @@ import type { LevelConfig } from "./types";
 // Coordinate system: x/y are percentages of the stage (0-100).
 // Beam path = source -> mirrors[0..n] -> diyas[0..m] in order.
 // Diyas always sit on the ground (y ~ 84-90) so they don't float in front of houses.
-// Obstacles on levels 4-6 are `blocking: true` — the player must tap them
-// to push them aside before the beam can pass through.
+// Difficulty progression:
+//   L1-2: single tap to align each mirror.
+//   L3:   single tap mirrors + a decorative pot.
+//   L4:   mirrors need 2 taps (dial in the angle) + 1 blocking obstacle.
+//   L5:   mirrors need 2–3 taps + multiple blocking obstacles in sequence.
+//   L6:   most mirrors need 3 taps, all obstacles blocking — final challenge.
 
 export const LEVELS: LevelConfig[] = [
   {
@@ -16,8 +20,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "m1", pos: { x: 50, y: 40 }, misalignedRotation: -35, alignedRotation: 0 },
     ],
     diyas: [{ id: "d1", pos: { x: 50, y: 88 }, size: "lg" }],
-    elephantPos: { x: 85, y: 95 },
-    elephantSize: 260,
+    elephantPos: { x: 88, y: 99 },
     hintMirrorId: "m1",
     brightness: 0.0,
   },
@@ -35,8 +38,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d2", pos: { x: 62, y: 86 }, size: "md" },
       { id: "d3", pos: { x: 88, y: 88 }, size: "lg" },
     ],
-    elephantPos: { x: 92, y: 95 },
-    elephantSize: 240,
+    elephantPos: { x: 94, y: 99 },
     brightness: 0.12,
   },
   {
@@ -54,20 +56,19 @@ export const LEVELS: LevelConfig[] = [
       { id: "d3", pos: { x: 78, y: 86 }, size: "md" },
       { id: "d4", pos: { x: 92, y: 88 }, size: "lg" },
     ],
-    elephantPos: { x: 90, y: 96 },
-    elephantSize: 220,
+    elephantPos: { x: 94, y: 99 },
     obstacles: [{ id: "o1", pos: { x: 44, y: 78 }, kind: "pot" }],
     brightness: 0.26,
   },
   {
     id: 4,
     title: "Lantern Grove",
-    subtitle: "Push the stones aside, then aim the mirrors",
+    subtitle: "Tap the mirrors twice to dial them in",
     source: { x: 5, y: 28 },
     mirrors: [
-      { id: "m1", pos: { x: 22, y: 28 }, misalignedRotation: 30, alignedRotation: 0 },
-      { id: "m2", pos: { x: 48, y: 28 }, misalignedRotation: -30, alignedRotation: 0 },
-      { id: "m3", pos: { x: 74, y: 28 }, misalignedRotation: 30, alignedRotation: 0 },
+      { id: "m1", pos: { x: 22, y: 28 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 2 },
+      { id: "m2", pos: { x: 48, y: 28 }, misalignedRotation: -30, alignedRotation: 0, requiredTaps: 2 },
+      { id: "m3", pos: { x: 74, y: 28 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 2 },
     ],
     diyas: [
       { id: "d1", pos: { x: 22, y: 88 }, size: "sm" },
@@ -75,24 +76,22 @@ export const LEVELS: LevelConfig[] = [
       { id: "d3", pos: { x: 74, y: 88 }, size: "md" },
       { id: "d4", pos: { x: 92, y: 86 }, size: "lg" },
     ],
-    elephantPos: { x: 94, y: 96 },
-    elephantSize: 210,
+    elephantPos: { x: 96, y: 99 },
     obstacles: [
       { id: "o1", pos: { x: 35, y: 28 }, kind: "stone", blocking: true },
-      { id: "o2", pos: { x: 61, y: 28 }, kind: "pot", blocking: true },
     ],
     brightness: 0.42,
   },
   {
     id: 5,
     title: "Temple Courtyard",
-    subtitle: "Clear the path, then wake the shrine",
+    subtitle: "Some mirrors need more turns. Clear the path too.",
     source: { x: 5, y: 26 },
     mirrors: [
-      { id: "m1", pos: { x: 18, y: 26 }, misalignedRotation: -30, alignedRotation: 0 },
-      { id: "m2", pos: { x: 38, y: 26 }, misalignedRotation: 35, alignedRotation: 0 },
-      { id: "m3", pos: { x: 58, y: 26 }, misalignedRotation: -35, alignedRotation: 0 },
-      { id: "m4", pos: { x: 78, y: 26 }, misalignedRotation: 30, alignedRotation: 0 },
+      { id: "m1", pos: { x: 18, y: 26 }, misalignedRotation: -30, alignedRotation: 0, requiredTaps: 2 },
+      { id: "m2", pos: { x: 38, y: 26 }, misalignedRotation: 35, alignedRotation: 0, requiredTaps: 3 },
+      { id: "m3", pos: { x: 58, y: 26 }, misalignedRotation: -35, alignedRotation: 0, requiredTaps: 2 },
+      { id: "m4", pos: { x: 78, y: 26 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 3 },
     ],
     diyas: [
       { id: "d1", pos: { x: 18, y: 88 }, size: "sm" },
@@ -101,26 +100,24 @@ export const LEVELS: LevelConfig[] = [
       { id: "d4", pos: { x: 78, y: 86 }, size: "md" },
       { id: "d5", pos: { x: 93, y: 88 }, size: "lg" },
     ],
-    elephantPos: { x: 50, y: 99 },
-    elephantSize: 190,
+    elephantPos: { x: 5, y: 99 },
     obstacles: [
       { id: "o1", pos: { x: 28, y: 26 }, kind: "stone", blocking: true },
-      { id: "o2", pos: { x: 48, y: 26 }, kind: "pot", blocking: true },
-      { id: "o3", pos: { x: 68, y: 26 }, kind: "stone", blocking: true },
+      { id: "o2", pos: { x: 68, y: 26 }, kind: "pot", blocking: true },
     ],
     brightness: 0.6,
   },
   {
     id: 6,
     title: "Grand Diwali Night",
-    subtitle: "Restore the sacred flame",
+    subtitle: "Three turns each. Clear every stone. Restore the flame.",
     source: { x: 4, y: 24 },
     mirrors: [
-      { id: "m1", pos: { x: 16, y: 24 }, misalignedRotation: 35, alignedRotation: 0 },
-      { id: "m2", pos: { x: 32, y: 24 }, misalignedRotation: -30, alignedRotation: 0 },
-      { id: "m3", pos: { x: 50, y: 24 }, misalignedRotation: 30, alignedRotation: 0 },
-      { id: "m4", pos: { x: 68, y: 24 }, misalignedRotation: -35, alignedRotation: 0 },
-      { id: "m5", pos: { x: 86, y: 24 }, misalignedRotation: 30, alignedRotation: 0 },
+      { id: "m1", pos: { x: 16, y: 24 }, misalignedRotation: 35, alignedRotation: 0, requiredTaps: 3 },
+      { id: "m2", pos: { x: 32, y: 24 }, misalignedRotation: -30, alignedRotation: 0, requiredTaps: 2 },
+      { id: "m3", pos: { x: 50, y: 24 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 3 },
+      { id: "m4", pos: { x: 68, y: 24 }, misalignedRotation: -35, alignedRotation: 0, requiredTaps: 3 },
+      { id: "m5", pos: { x: 86, y: 24 }, misalignedRotation: 30, alignedRotation: 0, requiredTaps: 2 },
     ],
     diyas: [
       { id: "d1", pos: { x: 16, y: 88 }, size: "sm" },
@@ -130,8 +127,7 @@ export const LEVELS: LevelConfig[] = [
       { id: "d5", pos: { x: 86, y: 88 }, size: "md" },
       { id: "d6", pos: { x: 95, y: 86 }, size: "lg" },
     ],
-    elephantPos: { x: 50, y: 99 },
-    elephantSize: 180,
+    elephantPos: { x: 5, y: 99 },
     obstacles: [
       { id: "o1", pos: { x: 24, y: 24 }, kind: "stone", blocking: true },
       { id: "o2", pos: { x: 41, y: 24 }, kind: "pot", blocking: true },
