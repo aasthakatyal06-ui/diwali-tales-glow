@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Heart, RotateCcw } from "lucide-react";
 import { Elephant } from "./Elephant";
 import { VillageBackdrop } from "./VillageBackdrop";
-import { Fireflies, FloatingPetals, StarField } from "./Particles";
+import { Fireflies, StarField } from "./Particles";
 import { Diya } from "./Diya";
 import { sfx } from "@/game/audio";
 
@@ -76,8 +76,7 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
     <div className="relative h-full w-full overflow-hidden">
       <VillageBackdrop brightness={1} />
       <StarField count={120} />
-      <Fireflies count={50} />
-      <FloatingPetals count={40} />
+      <Fireflies count={60} />
 
       {/* Rising lanterns */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -107,36 +106,53 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         ))}
       </div>
 
-      {/* Fireworks — paced, cohesive warm palette */}
+      {/* Star-shaped fireworks — warm palette, no big white flashes */}
       <div className="absolute inset-0 pointer-events-none">
         {fireworks.map((f) => (
           <div key={f.id} className="absolute" style={{ left: `${f.x}%`, top: `${f.y}%` }}>
             <div
               className="rounded-full"
               style={{
-                width: f.size,
-                height: f.size,
-                marginLeft: -f.size / 2,
-                marginTop: -f.size / 2,
-                background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue}) 0%, oklch(0.78 0.22 ${f.hue} / 0.55) 25%, transparent 70%)`,
+                width: f.size * 0.3,
+                height: f.size * 0.3,
+                marginLeft: -f.size * 0.15,
+                marginTop: -f.size * 0.15,
+                background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue} / 0.9), transparent 70%)`,
                 animation: "firework-burst 2.2s ease-out infinite",
                 animationDelay: `${f.delay}s`,
               }}
             />
-            {Array.from({ length: 10 }).map((_, k) => {
-              const angle = (k / 10) * Math.PI * 2;
+            {Array.from({ length: 20 }).map((_, k) => {
+              const angle = (k / 20) * Math.PI * 2;
+              const len = f.size * (0.32 + (k % 2) * 0.12);
               return (
                 <span
                   key={k}
-                  className="absolute left-0 top-0 h-[2px] origin-left rounded-full"
+                  className="absolute left-0 top-0"
                   style={{
-                    width: f.size * 0.5,
-                    background: `linear-gradient(90deg, oklch(0.96 0.2 ${f.hue}), transparent)`,
+                    width: len,
+                    height: 0,
                     transform: `rotate(${(angle * 180) / Math.PI}deg)`,
+                    transformOrigin: "0 0",
                     animation: "firework-rays 2.2s ease-out infinite",
                     animationDelay: `${f.delay}s`,
                   }}
-                />
+                >
+                  <span
+                    className="block h-[2px] rounded-full"
+                    style={{
+                      width: "100%",
+                      background: `linear-gradient(90deg, transparent, oklch(0.96 0.22 ${f.hue}) 60%, oklch(0.98 0.2 ${f.hue}))`,
+                    }}
+                  />
+                  <span
+                    className="absolute right-[-3px] top-[-3px] h-[7px] w-[7px] rounded-full"
+                    style={{
+                      background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue}), transparent 70%)`,
+                      boxShadow: `0 0 10px oklch(0.96 0.22 ${f.hue})`,
+                    }}
+                  />
+                </span>
               );
             })}
           </div>
