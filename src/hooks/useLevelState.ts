@@ -1,23 +1,40 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { LevelConfig } from "@/game/types";
+import type { LevelConfig, Point } from "@/game/types";
 import { sfx } from "@/game/audio";
 
+const DEFAULT_ORIENTATIONS = 4;
+
+/**
+ * Mirrors cycle through N discrete rotations on each tap. Only one position
+ * is "correct". The light beam visibly overshoots past the first misaligned
+ * mirror so the player can SEE which mirror is wrong and adjust intentionally
+ * — no more random tapping until everything happens to line up.
+ */
 export function useLevelState(level: LevelConfig) {
-  const [tapCounts, setTapCounts] = useState<Record<string, number>>({});
+  const [indices, setIndices] = useState<Record<string, number>>({});
   const [cleared, setCleared] = useState<Record<string, boolean>>({});
 
+  // Reset to the level's starting orientation whenever the level changes.
   useEffect(() => {
-    setTapCounts({});
+    const init: Record<string, number> = {};
+    for (const m of level.mirrors) init[m.id] = m.startIndex;
+    setIndices(init);
     setCleared({});
-  }, [level.id]);
+  }, [level.id, level.mirrors]);
 
-  /** success=false means the mirror was tapped but didn't lock (used by
-   *  spinning mirrors when the player mistimes the tap). */
-  const tapMirror = useCallback((id: string, success: boolean = true) => {
-    sfx.mirrorTap();
-    if (!success) return;
-    setTapCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
-  }, []);
+  const tapMirror = useCallback(
+    (id: string) => {
+      sfx.mirrorTap();
+      setIndices((prev) => {
+        const m = level.mirrors.find((mm) => mm.id === id);
+        if (!m) return prev;
+        const N = m.orientations ?? DEFAULT_ORIENTATIONS;
+        const cur = prev[id] ?? m.startIndex;
+        return { ...prev, [id]: (cur + 1) % N };
+      });
+    },
+    [level.mirrors],
+  );
 
   const tapObstacle = useCallback((id: string) => {
     setCleared((prev) => ({ ...prev, [id]: true }));
@@ -26,12 +43,20 @@ export function useLevelState(level: LevelConfig) {
   const aligned = useMemo(() => {
     const out: Record<string, boolean> = {};
     for (const m of level.mirrors) {
-      const need = m.requiredTaps ?? 1;
-      const taps = tapCounts[m.id] ?? 0;
-      out[m.id] = taps >= need;
+      out[m.id] = (indices[m.id] ?? m.startIndex) === m.correctIndex;
     }
     return out;
-  }, [level.mirrors, tapCounts]);
+  }, [level.mirrors, indices]);
+
+  const rotations = useMemo(() => {
+    const out: Record<string, number> = {};
+    for (const m of level.mirrors) {
+      const N = m.orientations ?? DEFAULT_ORIENTATIONS;
+      const idx = indices[m.id] ?? m.startIndex;
+      out[m.id] = (idx * 360) / N;
+    }
+    return out;
+  }, [level.mirrors, indices]);
 
   const blockingObstacles = useMemo(
     () => (level.obstacles ?? []).filter((o) => o.blocking),
@@ -50,17 +75,30 @@ export function useLevelState(level: LevelConfig) {
 
   const allAligned = allMirrorsAligned && allObstaclesCleared;
 
-  const beamPath = useMemo(() => {
-    const pts = [level.source];
+  // Beam threads through aligned mirrors in order. The first misaligned
+  // mirror produces an "overshoot" tail — the beam shoots past it in the
+  // current direction so the player visually sees what's wrong.
+  const beamPath = useMemo<Point[]>(() => {
+    const pts: Point[] = [level.source];
+    let blocked = false;
     for (const m of level.mirrors) {
-      if (aligned[m.id]) pts.push(m.pos);
-      else break;
+      pts.push(m.pos);
+      if (!aligned[m.id]) {
+        const prev = pts[pts.length - 2];
+        const dx = m.pos.x - prev.x;
+        const dy = m.pos.y - prev.y;
+        const len = Math.hypot(dx, dy) || 1;
+        const ext = 20;
+        pts.push({ x: m.pos.x + (dx / len) * ext, y: m.pos.y + (dy / len) * ext });
+        blocked = true;
+        break;
+      }
     }
-    if (allAligned) {
+    if (!blocked && allObstaclesCleared) {
       for (const d of level.diyas) pts.push(d.pos);
     }
     return pts;
-  }, [level, aligned, allAligned]);
+  }, [level, aligned, allObstaclesCleared]);
 
   const litDiyas = useMemo(() => {
     const set = new Set<string>();
@@ -68,5 +106,14 @@ export function useLevelState(level: LevelConfig) {
     return set;
   }, [allAligned, level.diyas]);
 
-  return { aligned, cleared, tapCounts, tapMirror, tapObstacle, allAligned, beamPath, litDiyas };
+  return {
+    aligned,
+    rotations,
+    cleared,
+    tapMirror,
+    tapObstacle,
+    allAligned,
+    beamPath,
+    litDiyas,
+  };
 }

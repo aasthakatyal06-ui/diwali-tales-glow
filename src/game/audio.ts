@@ -23,7 +23,7 @@ function getCtx(): AudioContext | null {
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     ctx = new AC();
     masterGain = ctx.createGain();
-    masterGain.gain.value = 1.0;
+    masterGain.gain.value = 1.25;
     masterGain.connect(ctx.destination);
     return ctx;
   } catch (err) {
@@ -124,7 +124,7 @@ function fadeIn(audio: HTMLAudioElement, target: number, durationMs: number) {
 
 // Tracks the gain node for the active music so we can boost above 1.0.
 let musicGain: GainNode | null = null;
-const MUSIC_BOOST = 1.8; // pump background music well above the file level
+const MUSIC_BOOST = 3.0; // pump background music well above the file level
 
 export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
   if (typeof window === "undefined") return;
