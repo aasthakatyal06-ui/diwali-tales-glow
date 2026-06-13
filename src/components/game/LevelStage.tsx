@@ -9,6 +9,7 @@ import { Obstacle } from "./Obstacle";
 import { Fireflies, StarField, SuccessSparkles } from "./Particles";
 import { useStageSize } from "@/hooks/useStageSize";
 import { useLevelState } from "@/hooks/useLevelState";
+import { sfx } from "@/game/audio";
 
 interface LevelStageProps {
   level: LevelConfig;
@@ -50,10 +51,14 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
   useEffect(() => {
     if (!allAligned) return;
     const t1 = setTimeout(() => setCelebrating(true), 400);
+    const fireworkTimers = [900, 1850, 2900].map((delay) =>
+      window.setTimeout(() => sfx.firework(), delay),
+    );
     const t2 = setTimeout(onComplete, 7200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      fireworkTimers.forEach(clearTimeout);
     };
   }, [allAligned, onComplete]);
 

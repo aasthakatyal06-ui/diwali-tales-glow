@@ -4,6 +4,7 @@ import { Elephant } from "./Elephant";
 import { VillageBackdrop } from "./VillageBackdrop";
 import { Fireflies, StarField } from "./Particles";
 import { Diya } from "./Diya";
+import { sfx } from "@/game/audio";
 
 interface FinaleSceneProps {
   onReplay: () => void;
@@ -17,7 +18,13 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
 
   useEffect(() => {
     const t = setTimeout(() => setShowButton(true), 12000);
-    return () => clearTimeout(t);
+    const fireworkTimers = [700, 1900, 3400, 5400, 7900].map((delay) =>
+      window.setTimeout(() => sfx.firework(), delay),
+    );
+    return () => {
+      clearTimeout(t);
+      fireworkTimers.forEach(clearTimeout);
+    };
   }, []);
 
   // Particle fireworks — burst in all directions like real ones.
