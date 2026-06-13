@@ -12,6 +12,12 @@ export interface MirrorConfig {
   startIndex: number;
   /** Index (0..orientations-1) that solves this mirror. */
   correctIndex: number;
+  /** Mirror cannot be tapped until ALL of these mirrors are aligned. */
+  lockedUntil?: string[];
+  /** Mirror auto-rotates on a timer and cannot be tapped. Used for timing puzzles. */
+  autoRotate?: boolean;
+  /** Auto-rotation interval in ms (default 1400). */
+  autoRotateMs?: number;
 }
 
 export interface DiyaConfig {
