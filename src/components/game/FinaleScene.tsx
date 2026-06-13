@@ -4,7 +4,6 @@ import { Elephant } from "./Elephant";
 import { VillageBackdrop } from "./VillageBackdrop";
 import { Fireflies, StarField } from "./Particles";
 import { Diya } from "./Diya";
-import { sfx } from "@/game/audio";
 
 interface FinaleSceneProps {
   onReplay: () => void;
@@ -17,20 +16,8 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
-    sfx.finale();
-    const intervals: number[] = [];
-    // Spaced-out fireworks — not a constant barrage.
-    for (let i = 0; i < 8; i++) {
-      intervals.push(window.setTimeout(() => sfx.firework(), 600 + i * 1400));
-    }
-    [1200, 6000].forEach((t) =>
-      intervals.push(window.setTimeout(() => sfx.applause(), t)),
-    );
     const t = setTimeout(() => setShowButton(true), 12000);
-    return () => {
-      intervals.forEach(clearTimeout);
-      clearTimeout(t);
-    };
+    return () => clearTimeout(t);
   }, []);
 
   // Particle fireworks — burst in all directions like real ones.
@@ -50,10 +37,11 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
 
   const lanterns = useMemo(
     () =>
-      Array.from({ length: 22 }).map((_, i) => ({
+      Array.from({ length: 16 }).map((_, i) => ({
         id: i,
-        x: 3 + Math.random() * 94,
-        delay: Math.random() * 14,
+        x: 5 + ((i * 37) % 90),
+        start: -12 - (i % 4) * 9,
+        delay: (i * 1.7) % 14,
         dur: 11 + Math.random() * 7,
         dx: (Math.random() - 0.5) * 120 + "px",
         hue: i % 2 === 0 ? 45 : 25,
@@ -85,10 +73,11 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         {lanterns.map((l) => (
           <div
             key={l.id}
-            className="absolute bottom-0"
+            className="absolute"
             style={
               {
                 left: `${l.x}%`,
+                bottom: `${l.start}%`,
                 animation: `rise-lantern ${l.dur}s ease-in infinite`,
                 animationDelay: `${l.delay}s`,
                 "--dx": l.dx,

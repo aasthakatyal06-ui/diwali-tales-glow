@@ -177,12 +177,12 @@ function VillageBackdropBase({ brightness }: VillageBackdropProps) {
             ))}
             {/* arched windows */}
             <path
-              d={`M ${h.w * 0.15} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
+              d={`M ${h.w * 0.26} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
               fill="oklch(0.9 0.18 60)"
               opacity={win * (0.6 + (i % 3) * 0.15)}
             />
             <path
-              d={`M ${h.w * 0.6} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
+              d={`M ${h.w * 0.58} ${h.h * 0.35} v ${-h.h * 0.05} a ${h.w * 0.08} ${h.h * 0.05} 0 0 1 ${h.w * 0.16} 0 v ${h.h * 0.05} z`}
               fill="oklch(0.9 0.18 60)"
               opacity={win * (0.7 + (i % 2) * 0.15)}
             />
@@ -264,18 +264,19 @@ function VillageBackdropBase({ brightness }: VillageBackdropProps) {
       <div className="absolute inset-x-0 top-0 h-36 pointer-events-none">
         <svg viewBox="0 0 1600 130" preserveAspectRatio="none" className="h-full w-full">
           <path
-            d="M 0 20 Q 400 90 800 35 T 1600 22"
+            d="M 0 28 Q 400 58 800 28 T 1600 28"
             stroke="oklch(0.5 0.05 30)"
             strokeWidth="2"
             fill="none"
           />
           {Array.from({ length: 18 }).map((_, i) => {
             const x = 40 + i * 90;
-            const y = 30 + Math.sin(i * 0.7) * 25 + 25;
+            const stringY = 28 + 30 * Math.sin((Math.PI * x) / 800) ** 2;
+            const y = stringY + 24;
             const hue = i % 3 === 0 ? 45 : i % 3 === 1 ? 15 : 80;
             return (
               <g key={i} transform={`translate(${x} ${y})`}>
-                <line x1="0" y1="-12" x2="0" y2="0" stroke="oklch(0.4 0.05 30)" strokeWidth="1" />
+                <line x1="0" y1="-24" x2="0" y2="0" stroke="oklch(0.4 0.05 30)" strokeWidth="1.5" />
                 <ellipse
                   cx="0"
                   cy="14"

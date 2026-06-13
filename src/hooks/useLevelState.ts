@@ -20,7 +20,6 @@ export function useLevelState(level: LevelConfig) {
   }, []);
 
   const tapObstacle = useCallback((id: string) => {
-    sfx.mirrorTap();
     setCleared((prev) => ({ ...prev, [id]: true }));
   }, []);
 

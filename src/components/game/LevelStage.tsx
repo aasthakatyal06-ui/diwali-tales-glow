@@ -50,23 +50,11 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   useEffect(() => {
     if (!allAligned) return;
-    // Single, satisfying success chord — no overlapping bleeps.
-    sfx.levelComplete();
-    const t1 = setTimeout(() => {
-      sfx.applause();
-      setCelebrating(true);
-    }, 400);
-    // A few spaced-out fireworks — not a rapid barrage.
-    const fireworkTimers: number[] = [];
-    [800, 1700, 2600, 3700, 5000].forEach((t) =>
-      fireworkTimers.push(window.setTimeout(() => sfx.firework(), t)),
-    );
-    fireworkTimers.push(window.setTimeout(() => sfx.cheer(), 3200));
+    const t1 = setTimeout(() => setCelebrating(true), 400);
     const t2 = setTimeout(onComplete, 7200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      fireworkTimers.forEach(clearTimeout);
     };
   }, [allAligned, onComplete]);
 
@@ -90,7 +78,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   const minDim = Math.min(size.w, size.h) || 600;
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
-  const elephantSize = level.elephantSize ?? Math.max(140, Math.min(210, minDim * 0.26));
+  const elephantSize = level.elephantSize ?? Math.max(165, Math.min(245, minDim * 0.32));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
