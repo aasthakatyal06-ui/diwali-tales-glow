@@ -210,12 +210,19 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         style={{ animation: "slide-up-fade 0.7s ease-out both" }}
       >
         <div className="font-display text-[10px] uppercase tracking-[0.3em] text-[oklch(0.86_0.16_75)]/80">
-          Level {level.id}
+          Level {level.id} / {LEVELS.length}
         </div>
         <h2 className="font-display text-xl text-white drop-shadow-[0_2px_12px_oklch(0.05_0_0_/_0.8)] md:text-2xl">
           {level.title}
         </h2>
       </div>
+
+      {showComplete && (
+        <LevelCompleteScreen
+          completedIndex={level.id - 1}
+          onContinue={onComplete}
+        />
+      )}
 
       {showTutorial && level.tutorial && (
         <div
