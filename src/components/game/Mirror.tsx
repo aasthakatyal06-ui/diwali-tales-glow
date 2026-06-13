@@ -9,10 +9,12 @@ interface MirrorProps {
   requiredTaps?: number;
   tapsTaken?: number;
   spinning?: boolean;
+  splitter?: boolean;
   hideHint?: boolean;
   size?: number;
   onTap: (success?: boolean) => void;
 }
+
 
 const SPIN_MS = 2600;
 const ALIGN_TOLERANCE_DEG = 22; // forgiving window for kids
