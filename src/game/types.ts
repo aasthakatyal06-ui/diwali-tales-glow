@@ -10,6 +10,9 @@ export interface MirrorConfig {
   alignedRotation: number;
   /** Number of taps required before this mirror locks aligned. Default 1. */
   requiredTaps?: number;
+  /** When true the mirror spins continuously — player must tap it at the right
+   *  moment (when it passes the aligned angle) to lock it. New for level 6. */
+  spinning?: boolean;
 }
 
 export interface DiyaConfig {
@@ -22,11 +25,8 @@ export interface ObstacleConfig {
   id: string;
   pos: Point;
   kind: "stone" | "pot";
-  /** When true the obstacle blocks the beam; player must tap it to clear. */
   blocking?: boolean;
-  /** When true the obstacle slides left/right; player must tap to clear. */
   moving?: boolean;
-  /** Horizontal travel distance in % of stage width (used when moving). */
   range?: number;
 }
 
@@ -41,8 +41,9 @@ export interface LevelConfig {
   elephantSize?: number;
   obstacles?: ObstacleConfig[];
   hintMirrorId?: string;
-  /** First-time tutorial card shown over the level (only when a new mechanic
-   *  appears for the first time). Kid-friendly, big font. */
   tutorial?: { title: string; body: string };
+  /** Hide on-screen tap badges (X more taps / Tap to move!). Used in the
+   *  final level so the player has to figure out the puzzle themselves. */
+  hideTapHints?: boolean;
   brightness: number;
 }
