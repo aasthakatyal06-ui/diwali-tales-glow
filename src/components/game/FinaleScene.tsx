@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Heart, RotateCcw } from "lucide-react";
 import { Elephant } from "./Elephant";
 import { VillageBackdrop } from "./VillageBackdrop";
-import { Fireflies, FloatingPetals, StarField } from "./Particles";
+import { Fireflies, StarField } from "./Particles";
 import { Diya } from "./Diya";
 import { sfx } from "@/game/audio";
 
@@ -76,8 +76,7 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
     <div className="relative h-full w-full overflow-hidden">
       <VillageBackdrop brightness={1} />
       <StarField count={120} />
-      <Fireflies count={50} />
-      <FloatingPetals count={40} />
+      <Fireflies count={60} />
 
       {/* Rising lanterns */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
@@ -107,36 +106,53 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         ))}
       </div>
 
-      {/* Fireworks — paced, cohesive warm palette */}
+      {/* Star-shaped fireworks — warm palette, no big white flashes */}
       <div className="absolute inset-0 pointer-events-none">
         {fireworks.map((f) => (
           <div key={f.id} className="absolute" style={{ left: `${f.x}%`, top: `${f.y}%` }}>
             <div
               className="rounded-full"
               style={{
-                width: f.size,
-                height: f.size,
-                marginLeft: -f.size / 2,
-                marginTop: -f.size / 2,
-                background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue}) 0%, oklch(0.78 0.22 ${f.hue} / 0.55) 25%, transparent 70%)`,
+                width: f.size * 0.3,
+                height: f.size * 0.3,
+                marginLeft: -f.size * 0.15,
+                marginTop: -f.size * 0.15,
+                background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue} / 0.9), transparent 70%)`,
                 animation: "firework-burst 2.2s ease-out infinite",
                 animationDelay: `${f.delay}s`,
               }}
             />
-            {Array.from({ length: 10 }).map((_, k) => {
-              const angle = (k / 10) * Math.PI * 2;
+            {Array.from({ length: 20 }).map((_, k) => {
+              const angle = (k / 20) * Math.PI * 2;
+              const len = f.size * (0.32 + (k % 2) * 0.12);
               return (
                 <span
                   key={k}
-                  className="absolute left-0 top-0 h-[2px] origin-left rounded-full"
+                  className="absolute left-0 top-0"
                   style={{
-                    width: f.size * 0.5,
-                    background: `linear-gradient(90deg, oklch(0.96 0.2 ${f.hue}), transparent)`,
+                    width: len,
+                    height: 0,
                     transform: `rotate(${(angle * 180) / Math.PI}deg)`,
+                    transformOrigin: "0 0",
                     animation: "firework-rays 2.2s ease-out infinite",
                     animationDelay: `${f.delay}s`,
                   }}
-                />
+                >
+                  <span
+                    className="block h-[2px] rounded-full"
+                    style={{
+                      width: "100%",
+                      background: `linear-gradient(90deg, transparent, oklch(0.96 0.22 ${f.hue}) 60%, oklch(0.98 0.2 ${f.hue}))`,
+                    }}
+                  />
+                  <span
+                    className="absolute right-[-3px] top-[-3px] h-[7px] w-[7px] rounded-full"
+                    style={{
+                      background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue}), transparent 70%)`,
+                      boxShadow: `0 0 10px oklch(0.96 0.22 ${f.hue})`,
+                    }}
+                  />
+                </span>
               );
             })}
           </div>
@@ -148,27 +164,26 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         <Diya key={d.id} pos={{ x: d.x, y: d.y }} lit size={d.size} />
       ))}
 
-      {/* Two big dancers flanking the elephant — properly animated like the
-          elephant: cute eyes, smile, swaying limbs. */}
+      {/* Two big dancers flanking the elephant — gentle sway, no spinning */}
       <div
-        className="absolute left-[10%] bottom-[4%] pointer-events-none z-10"
+        className="absolute left-[8%] bottom-[3%] pointer-events-none z-10"
         style={{ animation: "slide-up-fade 1s ease-out 0.6s both" }}
       >
-        <WomanDancer size={300} />
+        <WomanDancer size={Math.min(260, typeof window !== "undefined" ? window.innerHeight * 0.5 : 240)} />
       </div>
       <div
-        className="absolute right-[10%] bottom-[4%] pointer-events-none z-10"
+        className="absolute right-[8%] bottom-[3%] pointer-events-none z-10"
         style={{ animation: "slide-up-fade 1s ease-out 0.8s both" }}
       >
-        <ManDancer size={300} />
+        <ManDancer size={Math.min(260, typeof window !== "undefined" ? window.innerHeight * 0.5 : 240)} />
       </div>
 
       {/* Hero elephant in the center */}
       <div
-        className="absolute left-1/2 bottom-[4%] -translate-x-1/2 pointer-events-none z-20"
+        className="absolute left-1/2 bottom-[3%] -translate-x-1/2 pointer-events-none z-20"
         style={{ animation: "slide-up-fade 1.4s ease-out 0.3s both" }}
       >
-        <Elephant size={320} celebrating />
+        <Elephant size={Math.min(280, typeof window !== "undefined" ? window.innerHeight * 0.55 : 260)} celebrating />
       </div>
 
       {/* Title card */}

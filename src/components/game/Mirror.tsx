@@ -6,24 +6,35 @@ interface MirrorProps {
   rotation: number;
   aligned: boolean;
   hint?: boolean;
-  /** When >1, this mirror requires multiple taps to lock in. */
   requiredTaps?: number;
   tapsTaken?: number;
+  size?: number;
   onTap: () => void;
 }
 
-function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken = 0, onTap }: MirrorProps) {
+function MirrorBase({
+  pos,
+  rotation,
+  aligned,
+  hint,
+  requiredTaps = 1,
+  tapsTaken = 0,
+  size = 120,
+  onTap,
+}: MirrorProps) {
   const [extraSpins, setExtraSpins] = useState(0);
-  // Each tap rotates the mirror a partial amount so the player feels they
-  // are dialing it in (final lock-in snaps to alignedRotation via parent state).
   const partial = aligned ? 0 : (tapsTaken / Math.max(requiredTaps, 1)) * 90;
   const visualRotation = rotation + extraSpins * 180 + partial;
+  const w = size;
+  const h = size * 1.33;
 
   const handleTap = () => {
     setExtraSpins((n) => n + 1);
     onTap();
   };
 
+  const remaining = Math.max(0, requiredTaps - tapsTaken);
+  const showTapsBadge = requiredTaps > 1 && !aligned;
 
   return (
     <button
@@ -37,10 +48,10 @@ function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken 
         <span
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
           style={{
-            width: 200,
-            height: 200,
+            width: 240,
+            height: 240,
             background:
-              "radial-gradient(circle, oklch(0.94 0.16 70 / 0.7), transparent 65%)",
+              "radial-gradient(circle, oklch(0.94 0.16 70 / 0.8), transparent 65%)",
             animation: "breathe 1.3s ease-in-out infinite",
           }}
         />
@@ -48,21 +59,30 @@ function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken 
 
       {hint && !aligned && (
         <span
-          className="font-hand absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl px-5 py-2 text-2xl font-bold text-[#5a2a0a] shadow-xl ring-2 ring-[oklch(0.86_0.18_75)]"
+          className="font-hand absolute -top-20 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl px-7 py-3 text-4xl font-bold text-[#5a2a0a] shadow-2xl ring-4 ring-[oklch(0.86_0.18_75)]"
           style={{
             background: "linear-gradient(180deg,#fff5d6,#ffd994)",
             animation: "float-soft 1.6s ease-in-out infinite",
           }}
         >
-          Tap me!
+          👉 Tap me!
+        </span>
+      )}
+
+      {showTapsBadge && (
+        <span
+          className="font-hand absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-base font-bold text-[#5a2a0a] shadow-md pointer-events-none"
+          style={{ background: "linear-gradient(180deg,#fff5d6,#ffd994)" }}
+        >
+          {remaining} more tap{remaining === 1 ? "" : "s"}
         </span>
       )}
 
       <div
         className="relative"
         style={{
-          width: 120,
-          height: 160,
+          width: w,
+          height: h,
           transform: `rotate(${visualRotation}deg)`,
           transition: "transform 0.9s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
           filter: aligned
@@ -72,7 +92,6 @@ function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken 
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
           <defs>
-            {/* warm firelight glass — cream/peach, matching diya flame */}
             <radialGradient id="mGlass" cx="40%" cy="35%" r="75%">
               <stop offset="0%" stopColor="#fff6df" />
               <stop offset="55%" stopColor="#ffd49a" />
@@ -89,22 +108,16 @@ function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken 
             </linearGradient>
           </defs>
 
-          {/* Handle (clay-and-gold like the diya) */}
           <rect x="52" y="95" width="16" height="52" rx="8" fill="url(#mHandle)" />
           <rect x="50" y="105" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
           <rect x="50" y="120" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
           <rect x="50" y="135" width="20" height="3" fill="#7a4a0e" opacity="0.7" />
           <rect x="46" y="144" width="28" height="8" rx="3" fill="#e6b13a" />
-          {/* tassel — warm marigold red, no cold accents */}
           <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
-          {/* Outer gold frame */}
           <circle cx="60" cy="58" r="56" fill="url(#mFrame)" />
-          {/* Inner clay bezel (matches diya body) */}
           <circle cx="60" cy="58" r="46" fill="#7a3a14" />
-          {/* GLASS — warm firelight reflection */}
           <circle cx="60" cy="58" r="42" fill="url(#mGlass)" />
-          {/* Big highlight crescent */}
           <path
             d="M 30 50 A 32 32 0 0 1 80 30"
             stroke="#ffffff"
@@ -116,7 +129,6 @@ function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken 
           <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity="0.55" />
           <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity="0.4" />
 
-          {/* Decorative beads around frame — all warm gold + marigold */}
           {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
             const r = 51;
             const x = 60 + Math.cos((deg * Math.PI) / 180) * r;
