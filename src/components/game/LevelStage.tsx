@@ -87,7 +87,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   const minDim = Math.min(size.w, size.h) || 600;
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
-  const elephantSize = level.elephantSize ?? Math.max(220, Math.min(340, minDim * 0.42));
+  const elephantSize = level.elephantSize ?? Math.max(290, Math.min(440, minDim * 0.55));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
@@ -113,6 +113,41 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
 
       <LightBeam path={beamPath} visible={beamPath.length > 1} stage={size} />
+
+      {/* Ghost preview rays — show where each mirror would currently send light.
+          This is the core reasoning aid: players trace mentally BEFORE tapping. */}
+      {!allAligned &&
+        level.mirrors.map((m) => {
+          const rot = rotations[m.id] ?? 0;
+          // arrow points "up" at rot=0 → direction vector (sin, -cos)
+          const rad = (rot * Math.PI) / 180;
+          const dx = Math.sin(rad);
+          const dy = -Math.cos(rad);
+          const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+          const isAligned = !!aligned[m.id];
+          return (
+            <div
+              key={`ghost-${m.id}`}
+              className="absolute pointer-events-none z-[6]"
+              style={{ left: `${m.pos.x}%`, top: `${m.pos.y}%` }}
+            >
+              <div
+                className="absolute origin-left"
+                style={{
+                  width: 1600,
+                  height: 2,
+                  transform: `rotate(${angle}deg)`,
+                  top: -1,
+                  left: 0,
+                  background: isAligned
+                    ? "repeating-linear-gradient(90deg, oklch(0.94 0.16 80 / 0.55) 0 10px, transparent 10px 18px)"
+                    : "repeating-linear-gradient(90deg, oklch(0.95 0.04 80 / 0.32) 0 6px, transparent 6px 14px)",
+                  filter: "blur(0.4px)",
+                }}
+              />
+            </div>
+          );
+        })}
 
       {level.diyas.map((d) => (
         <Diya key={d.id} pos={d.pos} lit={litDiyas.has(d.id)} size={d.size} />
