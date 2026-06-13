@@ -4,28 +4,41 @@ import { sfx } from "@/game/audio";
 
 export function useLevelState(level: LevelConfig) {
   const [aligned, setAligned] = useState<Record<string, boolean>>({});
+  const [cleared, setCleared] = useState<Record<string, boolean>>({});
 
-  // Reset alignment when the level changes
   useEffect(() => {
     setAligned({});
+    setCleared({});
   }, [level.id]);
 
-  const tapMirror = useCallback(
-    (id: string) => {
-      sfx.mirrorTap();
-      setAligned((prev) => ({ ...prev, [id]: true }));
-    },
-    [],
+  const tapMirror = useCallback((id: string) => {
+    sfx.mirrorTap();
+    setAligned((prev) => ({ ...prev, [id]: true }));
+  }, []);
+
+  const tapObstacle = useCallback((id: string) => {
+    sfx.shimmer();
+    setCleared((prev) => ({ ...prev, [id]: true }));
+  }, []);
+
+  const blockingObstacles = useMemo(
+    () => (level.obstacles ?? []).filter((o) => o.blocking),
+    [level.obstacles],
   );
 
-  const allAligned = useMemo(
+  const allObstaclesCleared = useMemo(
+    () => blockingObstacles.every((o) => cleared[o.id]),
+    [blockingObstacles, cleared],
+  );
+
+  const allMirrorsAligned = useMemo(
     () => level.mirrors.every((m) => aligned[m.id]),
     [level.mirrors, aligned],
   );
 
+  const allAligned = allMirrorsAligned && allObstaclesCleared;
+
   const beamPath = useMemo(() => {
-    // Beam reveals progressively: source -> each aligned mirror in order.
-    // When ALL mirrors aligned, beam continues through all diyas in order.
     const pts = [level.source];
     for (const m of level.mirrors) {
       if (aligned[m.id]) pts.push(m.pos);
@@ -43,5 +56,5 @@ export function useLevelState(level: LevelConfig) {
     return set;
   }, [allAligned, level.diyas]);
 
-  return { aligned, tapMirror, allAligned, beamPath, litDiyas };
+  return { aligned, cleared, tapMirror, tapObstacle, allAligned, beamPath, litDiyas };
 }
