@@ -8,6 +8,10 @@ export interface MirrorConfig {
   pos: Point;
   misalignedRotation: number;
   alignedRotation: number;
+  /** Number of taps required before this mirror locks aligned. Default 1.
+   *  Higher numbers create a puzzle: rotate through multiple positions
+   *  to find the right one. */
+  requiredTaps?: number;
 }
 
 export interface DiyaConfig {
