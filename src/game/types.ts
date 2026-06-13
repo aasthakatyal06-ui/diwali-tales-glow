@@ -6,17 +6,12 @@ export interface Point {
 export interface MirrorConfig {
   id: string;
   pos: Point;
-  misalignedRotation: number;
-  alignedRotation: number;
-  /** Number of taps required before this mirror locks aligned. Default 1. */
-  requiredTaps?: number;
-  /** When true the mirror spins continuously — player must tap it at the right
-   *  moment (when it passes the aligned angle) to lock it. New for level 6. */
-  spinning?: boolean;
-  /** Splitter mirrors visually fan light into two paths. Gameplay-wise they
-   *  still need to be aligned like any other mirror. */
-  splitter?: boolean;
-
+  /** Number of discrete rotation positions the mirror can be in. Default 4. */
+  orientations?: number;
+  /** Index (0..orientations-1) the mirror starts in. Must not equal correctIndex. */
+  startIndex: number;
+  /** Index (0..orientations-1) that solves this mirror. */
+  correctIndex: number;
 }
 
 export interface DiyaConfig {
@@ -46,8 +41,7 @@ export interface LevelConfig {
   obstacles?: ObstacleConfig[];
   hintMirrorId?: string;
   tutorial?: { title: string; body: string };
-  /** Hide on-screen tap badges (X more taps / Tap to move!). Used in the
-   *  final level so the player has to figure out the puzzle themselves. */
+  /** Hide on-screen tap badges. */
   hideTapHints?: boolean;
   brightness: number;
 }
