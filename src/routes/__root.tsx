@@ -85,8 +85,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Chakra-Bots: The Lost Light of Diwali" },
       { name: "twitter:description", content: "A magical animated storybook — help a little elephant bring the lights of Diwali back to a sleepy Indian village." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9abc091-1d63-4e5b-8731-9589e718b716/id-preview-a7b3a981--8d087bfb-6ae5-4224-b3f5-fc8cd0346d4e.lovable.app-1781383174695.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a9abc091-1d63-4e5b-8731-9589e718b716/id-preview-a7b3a981--8d087bfb-6ae5-4224-b3f5-fc8cd0346d4e.lovable.app-1781383174695.png" },
+      { property: "og:image", content: "/og-image.png" },
+      { name: "twitter:image", content: "/og-image.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

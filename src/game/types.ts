@@ -46,8 +46,11 @@ export interface LevelConfig {
   elephantSize?: number;
   obstacles?: ObstacleConfig[];
   hintMirrorId?: string;
+  hintObstacleId?: string;
   tutorial?: { title: string; body: string };
   /** Hide on-screen tap badges. */
   hideTapHints?: boolean;
+  /** How many reflections ahead the ghost ray is visible. Default: Infinity. */
+  ghostRayRange?: number;
   brightness: number;
 }

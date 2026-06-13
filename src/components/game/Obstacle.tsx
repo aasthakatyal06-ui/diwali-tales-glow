@@ -5,7 +5,7 @@ import { sfx } from "@/game/audio";
 interface ObstacleProps {
   obstacle: ObstacleConfig;
   cleared?: boolean;
-  hideHint?: boolean;
+  hint?: boolean;
   onTap?: () => void;
 }
 
@@ -55,7 +55,7 @@ function ShatterPieces({ color, visible }: ShatterPiecesProps) {
   );
 }
 
-function ObstacleBase({ obstacle, cleared, hideHint, onTap }: ObstacleProps) {
+function ObstacleBase({ obstacle, cleared, hint, onTap }: ObstacleProps) {
   const { pos, kind, blocking, moving, range = 6 } = obstacle;
   const interactive = !!blocking && !cleared;
   const [tapped, setTapped] = useState(false);
@@ -113,7 +113,7 @@ function ObstacleBase({ obstacle, cleared, hideHint, onTap }: ObstacleProps) {
                 animation: "breathe 1.2s ease-in-out infinite",
               }}
             />
-            {!hideHint && (
+            {hint && (
               <span
                 className="font-hand pointer-events-none absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-base font-bold text-[#5a2a0a] shadow-lg"
                 style={{

@@ -138,6 +138,17 @@ export function useLevelState(level: LevelConfig) {
     return set;
   }, [allAligned, level.diyas]);
 
+  // Which mirrors are "reachable" by the beam (all preceding mirrors aligned).
+  // Used to limit ghost ray visibility — only show for reachable mirrors.
+  const reachable = useMemo(() => {
+    const set = new Set<string>();
+    for (const m of level.mirrors) {
+      set.add(m.id);
+      if (!aligned[m.id]) break;
+    }
+    return set;
+  }, [level.mirrors, aligned]);
+
   return {
     aligned,
     rotations,
@@ -148,5 +159,6 @@ export function useLevelState(level: LevelConfig) {
     allAligned,
     beamPath,
     litDiyas,
+    reachable,
   };
 }

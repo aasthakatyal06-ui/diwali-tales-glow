@@ -2,9 +2,11 @@ import { memo, useMemo } from "react";
 import type { Point } from "@/game/types";
 
 interface LightBeamProps {
-  path: Point[]; // sequential points the beam threads through
+  path: Point[];
   visible: boolean;
   stage: { w: number; h: number };
+  /** Opacity per segment (0..1). Length should match path.length - 1. */
+  segmentOpacity?: number[];
 }
 
 function segmentStyle(a: Point, b: Point, w: number, h: number) {
@@ -24,17 +26,15 @@ function segmentStyle(a: Point, b: Point, w: number, h: number) {
   };
 }
 
-/**
- * Soft golden beam — thin warm core + glowing halo, no busy gradient.
- */
-function LightBeamBase({ path, visible, stage }: LightBeamProps) {
+function LightBeamBase({ path, visible, stage, segmentOpacity }: LightBeamProps) {
   const segs = useMemo(() => {
     if (path.length < 2 || stage.w === 0) return [];
     return path.slice(0, -1).map((p, i) => ({
       key: `${i}-${p.x}-${p.y}`,
       style: segmentStyle(p, path[i + 1], stage.w, stage.h),
+      opacity: segmentOpacity?.[i] ?? 1,
     }));
-  }, [path, stage.w, stage.h]);
+  }, [path, stage.w, stage.h, segmentOpacity]);
 
   return (
     <div
@@ -42,8 +42,7 @@ function LightBeamBase({ path, visible, stage }: LightBeamProps) {
       style={{ opacity: visible ? 1 : 0 }}
     >
       {segs.map((s) => (
-        <div key={s.key} className="absolute origin-left" style={s.style}>
-          {/* outer halo */}
+        <div key={s.key} className="absolute origin-left" style={{ ...s.style, opacity: s.opacity }}>
           <div
             className="absolute -top-[6px] h-[14px] w-full rounded-full"
             style={{
@@ -51,7 +50,6 @@ function LightBeamBase({ path, visible, stage }: LightBeamProps) {
               filter: "blur(6px)",
             }}
           />
-          {/* core */}
           <div
             className="absolute -top-[1.5px] h-[3px] w-full rounded-full"
             style={{
