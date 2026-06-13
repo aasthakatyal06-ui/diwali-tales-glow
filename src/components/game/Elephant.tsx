@@ -142,19 +142,21 @@ function ElephantBase({
           <circle cx="136" cy={sad ? 100 : 103} r="2.4" fill="white" />
         </g>
 
-        {/* Soft curved lashes make the mascot feel sweeter without obscuring his eyes. */}
-        <g stroke="#3a2548" strokeWidth="2" strokeLinecap="round" fill="none">
-          <path d="M 83 94 Q 92 87 103 94" />
-          <path d="M 84 92 L 80 88 M 89 89 L 87 84 M 98 90 L 101 85" />
-          <path d="M 123 94 Q 133 87 143 94" />
-          <path d="M 125 90 L 122 85 M 136 89 L 138 84 M 142 92 L 146 88" />
-        </g>
+        {/* Happy lashes stay out of the sad expression. */}
+        {!sad && (
+          <g stroke="#3a2548" strokeWidth="2" strokeLinecap="round" fill="none">
+            <path d="M 83 94 Q 92 87 103 94" />
+            <path d="M 84 92 L 80 88 M 89 89 L 87 84 M 98 90 L 101 85" />
+            <path d="M 123 94 Q 133 87 143 94" />
+            <path d="M 125 90 L 122 85 M 136 89 L 138 84 M 142 92 L 146 88" />
+          </g>
+        )}
 
         {/* Sad brows + tears */}
         {sad && (
           <>
-            <path d="M 78 86 Q 93 96 106 90" stroke="#3a2548" strokeWidth="3" fill="none" strokeLinecap="round" />
-            <path d="M 120 90 Q 133 96 148 86" stroke="#3a2548" strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 81 91 Q 92 86 104 82" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 122 82 Q 134 86 145 91" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
             <ellipse
               cx="100"
               cy="115"
