@@ -6,22 +6,24 @@ interface MirrorProps {
   rotation: number;
   aligned: boolean;
   hint?: boolean;
+  /** When >1, this mirror requires multiple taps to lock in. */
+  requiredTaps?: number;
+  tapsTaken?: number;
   onTap: () => void;
 }
 
-/**
- * Hand mirror in a warm gold/clay palette — matches the diya so the two
- * read as cousins (same gold frame, same warm tones). The glass shows a
- * cream firelight reflection instead of a cool blue sky.
- */
-function MirrorBase({ pos, rotation, aligned, hint, onTap }: MirrorProps) {
+function MirrorBase({ pos, rotation, aligned, hint, requiredTaps = 1, tapsTaken = 0, onTap }: MirrorProps) {
   const [extraSpins, setExtraSpins] = useState(0);
-  const visualRotation = rotation + extraSpins * 360;
+  // Each tap rotates the mirror a partial amount so the player feels they
+  // are dialing it in (final lock-in snaps to alignedRotation via parent state).
+  const partial = aligned ? 0 : (tapsTaken / Math.max(requiredTaps, 1)) * 90;
+  const visualRotation = rotation + extraSpins * 180 + partial;
 
   const handleTap = () => {
     setExtraSpins((n) => n + 1);
     onTap();
   };
+
 
   return (
     <button
