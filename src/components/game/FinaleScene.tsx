@@ -180,23 +180,37 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         <Elephant size={Math.min(280, typeof window !== "undefined" ? window.innerHeight * 0.55 : 260)} celebrating />
       </div>
 
-      {/* Title card */}
+      {/* Title card — wrapped in a translucent panel so text is readable
+          against the fireworks/lanterns/dancers behind it. */}
       <div
-        className="absolute inset-x-0 top-10 text-center px-6 z-20"
+        className="absolute inset-x-0 top-6 flex justify-center px-4 z-20"
         style={{ animation: "slide-up-fade 1s ease-out 0.6s both" }}
       >
-        <div className="flex items-center justify-center gap-2 text-[oklch(0.86_0.16_75)]">
-          <Heart className="h-4 w-4 fill-current" />
-          <span className="font-display text-xs uppercase tracking-[0.4em]">Happy Diwali</span>
-          <Heart className="h-4 w-4 fill-current" />
-        </div>
-        <h1
-          className="mt-2 font-display text-5xl text-white sm:text-6xl md:text-7xl"
-          style={{ animation: "title-glow 3s ease-in-out infinite" }}
+        <div
+          className="max-w-3xl rounded-3xl px-8 py-5 text-center ring-1 ring-white/20"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.12 0.06 280 / 0.7), oklch(0.18 0.08 30 / 0.55))",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            boxShadow: "0 10px 40px oklch(0.05 0 0 / 0.6)",
+          }}
         >
-          You brought the festival back
-        </h1>
-        <p className="mt-3 text-white/85 md:text-lg">The whole village is dancing because of you.</p>
+          <div className="flex items-center justify-center gap-2 text-[oklch(0.92_0.16_75)]">
+            <Heart className="h-4 w-4 fill-current" />
+            <span className="font-display text-xs uppercase tracking-[0.4em]">Happy Diwali</span>
+            <Heart className="h-4 w-4 fill-current" />
+          </div>
+          <h1
+            className="mt-2 font-display text-4xl text-white sm:text-5xl md:text-6xl leading-tight"
+            style={{ animation: "title-glow 3s ease-in-out infinite" }}
+          >
+            You brought the festival back
+          </h1>
+          <p className="font-hand mt-4 text-xl text-white md:text-2xl">
+            The whole village is dancing because of you.
+          </p>
+        </div>
       </div>
 
       {showButton && (
