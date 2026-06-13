@@ -87,7 +87,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   const minDim = Math.min(size.w, size.h) || 600;
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
-  const elephantSize = level.elephantSize ?? Math.max(165, Math.min(245, minDim * 0.32));
+  const elephantSize = level.elephantSize ?? Math.max(220, Math.min(340, minDim * 0.42));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
