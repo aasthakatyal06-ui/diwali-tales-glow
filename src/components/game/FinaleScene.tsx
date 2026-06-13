@@ -181,29 +181,49 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
               transform: v.flip ? "scaleX(-1)" : undefined,
             }}
           >
-            <svg width="46" height="86" viewBox="0 0 46 86">
-              {/* head */}
-              <circle cx="23" cy="12" r="8" fill="#3a2a4a" />
-              {/* hair bun */}
-              <circle cx="23" cy="5" r="3.5" fill="#1a0e22" />
-              {/* sari blouse */}
-              <path d="M 12 26 Q 23 22 34 26 L 32 40 Q 23 38 14 40 Z" fill="#2a1a35" />
-              {/* flowing sari skirt — curved bell, not triangular */}
+            <svg width="58" height="100" viewBox="0 0 58 100">
+              {/* shadow */}
+              <ellipse cx="29" cy="97" rx="18" ry="2.5" fill="#000" opacity="0.4" />
+              {/* sari skirt — curved bell */}
               <path
-                d="M 14 40 Q 6 60 8 78 Q 23 82 38 78 Q 40 60 32 40 Q 23 44 14 40 Z"
+                d="M 14 50 Q 4 76 6 92 Q 29 98 52 92 Q 54 76 44 50 Q 29 54 14 50 Z"
                 fill={v.color}
               />
-              {/* sari border trim */}
-              <path d="M 8 76 Q 23 80 38 76" stroke="#ffd24d" strokeWidth="2" fill="none" />
-              {/* arms raised in dance */}
-              <path d="M 14 28 Q 4 18 6 6" stroke="#3a2a4a" strokeWidth="4" fill="none" strokeLinecap="round" />
-              <path d="M 32 28 Q 42 18 40 6" stroke="#3a2a4a" strokeWidth="4" fill="none" strokeLinecap="round" />
-              {/* hand bangles */}
-              <circle cx="6" cy="6" r="2.5" fill="#ffd24d" />
-              <circle cx="40" cy="6" r="2.5" fill="#ffd24d" />
+              {/* gold sari border */}
+              <path d="M 6 90 Q 29 96 52 90" stroke="#ffd24d" strokeWidth="2.5" fill="none" />
+              <path d="M 8 84 Q 29 88 50 84" stroke="#fff2cc" strokeWidth="1" fill="none" opacity="0.7" />
+              {/* blouse */}
+              <path d="M 16 34 Q 29 30 42 34 L 40 50 Q 29 48 18 50 Z" fill="#2a1a35" />
+              {/* arms raised */}
+              <path d="M 17 36 Q 6 22 8 8" stroke="#c98d63" strokeWidth="5" fill="none" strokeLinecap="round" />
+              <path d="M 41 36 Q 52 22 50 8" stroke="#c98d63" strokeWidth="5" fill="none" strokeLinecap="round" />
+              {/* hands + bangles */}
+              <circle cx="8" cy="8" r="3" fill="#c98d63" />
+              <circle cx="50" cy="8" r="3" fill="#c98d63" />
+              <circle cx="8" cy="11" r="3" fill="#ffd24d" opacity="0.9" />
+              <circle cx="50" cy="11" r="3" fill="#ffd24d" opacity="0.9" />
+              {/* head — warm skin tone, cute */}
+              <circle cx="29" cy="18" r="11" fill="#e2a87a" />
+              {/* hair bun on top */}
+              <ellipse cx="29" cy="8" rx="6" ry="4" fill="#1a0e22" />
+              <path d="M 18 18 Q 18 8 29 6 Q 40 8 40 18" fill="#1a0e22" />
+              {/* flower in hair */}
+              <circle cx="37" cy="10" r="2.5" fill="#ff7ab0" />
+              <circle cx="37" cy="10" r="1" fill="#ffd24d" />
+              {/* cute eyes */}
+              <ellipse cx="25" cy="19" rx="1.8" ry="2.4" fill="#1a1830" />
+              <ellipse cx="33" cy="19" rx="1.8" ry="2.4" fill="#1a1830" />
+              <circle cx="25.5" cy="18.2" r="0.7" fill="#fff" />
+              <circle cx="33.5" cy="18.2" r="0.7" fill="#fff" />
+              {/* rosy cheeks */}
+              <circle cx="22" cy="22" r="2" fill="#ff8aa0" opacity="0.6" />
+              <circle cx="36" cy="22" r="2" fill="#ff8aa0" opacity="0.6" />
+              {/* big smile */}
+              <path d="M 25 24 Q 29 27 33 24" stroke="#3a1a08" strokeWidth="1.4" fill="none" strokeLinecap="round" />
               {/* bindi */}
-              <circle cx="23" cy="11" r="1.4" fill="#ff5a7a" />
+              <circle cx="29" cy="14" r="1.2" fill="#c24a1a" />
             </svg>
+
           </div>
         ))}
       </div>
