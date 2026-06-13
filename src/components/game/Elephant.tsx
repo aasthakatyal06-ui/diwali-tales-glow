@@ -155,8 +155,8 @@ function ElephantBase({
         {/* Sad brows + tears */}
         {sad && (
           <>
-            <path d="M 81 87 Q 92 80 104 89" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
-            <path d="M 122 89 Q 134 80 145 87" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 81 91 Q 92 86 104 82" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
+            <path d="M 122 82 Q 134 86 145 91" stroke="#3a2548" strokeWidth="4" fill="none" strokeLinecap="round" />
             <ellipse
               cx="100"
               cy="115"
