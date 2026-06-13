@@ -233,6 +233,20 @@ function MirrorBase({
               opacity="0.95"
             />
           )}
+
+          {splitter && (
+            <g opacity={aligned ? 0.95 : 0.55}>
+              <polygon
+                points="60,40 76,68 44,68"
+                fill="none"
+                stroke={aligned ? "#fff7c2" : "#cdd6e0"}
+                strokeWidth="2"
+              />
+              <line x1="60" y1="68" x2="50" y2="84" stroke={aligned ? "#fff7c2" : "#cdd6e0"} strokeWidth="2" />
+              <line x1="60" y1="68" x2="70" y2="84" stroke={aligned ? "#fff7c2" : "#cdd6e0"} strokeWidth="2" />
+            </g>
+          )}
+
         </svg>
       </div>
     </button>

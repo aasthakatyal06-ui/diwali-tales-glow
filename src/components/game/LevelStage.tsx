@@ -133,11 +133,13 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           requiredTaps={m.requiredTaps ?? 1}
           tapsTaken={tapCounts[m.id] ?? 0}
           spinning={!!m.spinning}
+          splitter={!!m.splitter}
           hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id] && Object.keys(aligned).length === 0}
           onTap={(success) => tapMirror(m.id, success ?? true)}
         />
       ))}
+
 
       {allAligned && level.diyas.map((d) => <SuccessSparkles key={d.id} x={d.pos.x} y={d.pos.y} />)}
 
