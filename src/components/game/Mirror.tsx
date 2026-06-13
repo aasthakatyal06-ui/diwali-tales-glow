@@ -8,6 +8,8 @@ interface MirrorProps {
   hint?: boolean;
   hideHint?: boolean;
   size?: number;
+  locked?: boolean;
+  autoRotating?: boolean;
   onTap: () => void;
 }
 
@@ -23,6 +25,8 @@ function MirrorBase({
   hint,
   hideHint = false,
   size = 120,
+  locked = false,
+  autoRotating = false,
   onTap,
 }: MirrorProps) {
   const w = size;
@@ -31,10 +35,10 @@ function MirrorBase({
   return (
     <button
       type="button"
-      onClick={() => onTap()}
-      className="absolute -translate-x-1/2 -translate-y-1/2 group cursor-pointer focus:outline-none z-20"
+      onClick={() => !locked && !autoRotating && onTap()}
+      className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-20 ${locked || autoRotating ? "cursor-not-allowed" : "cursor-pointer"}`}
       style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-      aria-label="Tap mirror to rotate"
+      aria-label={locked ? "Mirror locked" : autoRotating ? "Mirror auto-rotating" : "Tap mirror to rotate"}
     >
       {hint && !aligned && !hideHint && (
         <span
@@ -67,10 +71,14 @@ function MirrorBase({
           width: w,
           height: h,
           transform: `rotate(${rotation}deg)`,
-          transition: "transform 0.55s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
+          transition: autoRotating
+            ? "transform 0.9s linear, filter 0.5s"
+            : "transform 0.55s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
           filter: aligned
             ? "drop-shadow(0 0 38px oklch(0.96 0.18 75 / 1)) drop-shadow(0 0 14px oklch(0.98 0.14 85 / 0.9))"
-            : "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6)) drop-shadow(0 0 10px oklch(0.92 0.1 80 / 0.4))",
+            : locked
+              ? "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6)) grayscale(0.6) brightness(0.55)"
+              : "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6)) drop-shadow(0 0 10px oklch(0.92 0.1 80 / 0.4))",
         }}
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
@@ -158,6 +166,23 @@ function MirrorBase({
           )}
         </svg>
       </div>
+
+      {locked && (
+        <span
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl"
+          style={{ filter: "drop-shadow(0 2px 6px oklch(0.05 0 0 / 0.9))" }}
+          aria-hidden
+        >
+          🔒
+        </span>
+      )}
+      {autoRotating && !aligned && (
+        <span
+          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#3a1a40]/85 px-3 py-1 text-xs uppercase tracking-widest text-[#ffd994] ring-1 ring-[#ffd994]/60"
+        >
+          spinning
+        </span>
+      )}
     </button>
   );
 }

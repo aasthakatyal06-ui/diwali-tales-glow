@@ -22,24 +22,6 @@ export function useLevelState(level: LevelConfig) {
     setCleared({});
   }, [level.id, level.mirrors]);
 
-  const tapMirror = useCallback(
-    (id: string) => {
-      sfx.mirrorTap();
-      setIndices((prev) => {
-        const m = level.mirrors.find((mm) => mm.id === id);
-        if (!m) return prev;
-        const N = m.orientations ?? DEFAULT_ORIENTATIONS;
-        const cur = prev[id] ?? m.startIndex;
-        return { ...prev, [id]: (cur + 1) % N };
-      });
-    },
-    [level.mirrors],
-  );
-
-  const tapObstacle = useCallback((id: string) => {
-    setCleared((prev) => ({ ...prev, [id]: true }));
-  }, []);
-
   const aligned = useMemo(() => {
     const out: Record<string, boolean> = {};
     for (const m of level.mirrors) {
@@ -47,6 +29,36 @@ export function useLevelState(level: LevelConfig) {
     }
     return out;
   }, [level.mirrors, indices]);
+
+  const locked = useMemo(() => {
+    const out: Record<string, boolean> = {};
+    for (const m of level.mirrors) {
+      out[m.id] = !!m.lockedUntil?.some((id) => !aligned[id]);
+    }
+    return out;
+  }, [level.mirrors, aligned]);
+
+  const tapMirror = useCallback(
+    (id: string) => {
+      const m = level.mirrors.find((mm) => mm.id === id);
+      if (!m) return;
+      if (m.autoRotate) return;
+      if (m.lockedUntil?.some((dep) => (indices[dep] ?? 0) !== (level.mirrors.find((x) => x.id === dep)?.correctIndex ?? -1))) {
+        return;
+      }
+      sfx.mirrorTap();
+      setIndices((prev) => {
+        const N = m.orientations ?? DEFAULT_ORIENTATIONS;
+        const cur = prev[id] ?? m.startIndex;
+        return { ...prev, [id]: (cur + 1) % N };
+      });
+    },
+    [level.mirrors, indices],
+  );
+
+  const tapObstacle = useCallback((id: string) => {
+    setCleared((prev) => ({ ...prev, [id]: true }));
+  }, []);
 
   const rotations = useMemo(() => {
     const out: Record<string, number> = {};
@@ -74,6 +86,26 @@ export function useLevelState(level: LevelConfig) {
   );
 
   const allAligned = allMirrorsAligned && allObstaclesCleared;
+
+  // Auto-rotate mirrors tick on a timer until level is solved.
+  useEffect(() => {
+    if (allAligned) return;
+    const timers: ReturnType<typeof setInterval>[] = [];
+    for (const m of level.mirrors) {
+      if (!m.autoRotate) continue;
+      const N = m.orientations ?? DEFAULT_ORIENTATIONS;
+      const ms = m.autoRotateMs ?? 1400;
+      timers.push(
+        setInterval(() => {
+          setIndices((prev) => ({
+            ...prev,
+            [m.id]: ((prev[m.id] ?? m.startIndex) + 1) % N,
+          }));
+        }, ms),
+      );
+    }
+    return () => timers.forEach(clearInterval);
+  }, [level.id, level.mirrors, allAligned]);
 
   // Beam threads through aligned mirrors in order. The first misaligned
   // mirror produces an "overshoot" tail — the beam shoots past it in the
@@ -110,6 +142,7 @@ export function useLevelState(level: LevelConfig) {
     aligned,
     rotations,
     cleared,
+    locked,
     tapMirror,
     tapObstacle,
     allAligned,

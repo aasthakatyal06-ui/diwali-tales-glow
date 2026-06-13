@@ -1,11 +1,12 @@
 import type { LevelConfig } from "./types";
 
-// Every mirror has 4 discrete rotations (90° apart) and exactly ONE is
-// correct. Each mirror starts in a wrong position so the puzzle is never
-// trivially solved. The light beam visibly overshoots past the first
-// misaligned mirror, so the player can reason about WHICH mirror to fix.
+// Every mirror has 4 discrete rotations (90° apart). The correct rotation is
+// auto-computed from geometry — it points the mirror at the NEXT mirror in
+// the chain (or, for the last mirror, at the first diya). The starting
+// rotation is always 180° off from correct so the player MUST reason about
+// which way each mirror has to face.
 
-export const LEVELS: LevelConfig[] = [
+const RAW_LEVELS: LevelConfig[] = [
   {
     id: 1,
     title: "First Light",
@@ -94,15 +95,15 @@ export const LEVELS: LevelConfig[] = [
   },
   {
     id: 5,
-    title: "Temple Courtyard",
-    subtitle: "Five mirrors. Trace every ghost ray. No hints.",
+    title: "Locked Courtyard",
+    subtitle: "Each mirror unlocks the next. Solve them in order.",
     source: { x: 4, y: 28 },
     mirrors: [
       { id: "m1", pos: { x: 15, y: 28 }, orientations: 4, startIndex: 2, correctIndex: 0 },
-      { id: "m2", pos: { x: 33, y: 28 }, orientations: 4, startIndex: 1, correctIndex: 0 },
-      { id: "m3", pos: { x: 51, y: 28 }, orientations: 4, startIndex: 3, correctIndex: 0 },
-      { id: "m4", pos: { x: 69, y: 28 }, orientations: 4, startIndex: 2, correctIndex: 0 },
-      { id: "m5", pos: { x: 87, y: 28 }, orientations: 4, startIndex: 1, correctIndex: 0 },
+      { id: "m2", pos: { x: 33, y: 28 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m1"] },
+      { id: "m3", pos: { x: 51, y: 28 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m2"] },
+      { id: "m4", pos: { x: 69, y: 28 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m3"] },
+      { id: "m5", pos: { x: 87, y: 28 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m4"] },
     ],
     diyas: [
       { id: "d1", pos: { x: 33, y: 88 }, size: "sm" },
@@ -120,19 +121,23 @@ export const LEVELS: LevelConfig[] = [
     ],
     hideTapHints: true,
     brightness: 0.6,
+    tutorial: {
+      title: "Locked mirrors!",
+      body: "A locked 🔒 mirror won't move until the mirror before it is aligned. Plan the chain.",
+    },
   },
   {
     id: 6,
     title: "Grand Diwali Night",
-    subtitle: "Six mirrors, six obstacles. The real test.",
+    subtitle: "Locked chain + a spinning mirror. Time the final reflection.",
     source: { x: 4, y: 26 },
     mirrors: [
       { id: "m1", pos: { x: 13, y: 26 }, orientations: 4, startIndex: 1, correctIndex: 0 },
-      { id: "m2", pos: { x: 28, y: 26 }, orientations: 4, startIndex: 3, correctIndex: 0 },
-      { id: "m3", pos: { x: 43, y: 26 }, orientations: 4, startIndex: 2, correctIndex: 0 },
-      { id: "m4", pos: { x: 58, y: 26 }, orientations: 4, startIndex: 1, correctIndex: 0 },
-      { id: "m5", pos: { x: 73, y: 26 }, orientations: 4, startIndex: 3, correctIndex: 0 },
-      { id: "m6", pos: { x: 88, y: 26 }, orientations: 4, startIndex: 2, correctIndex: 0 },
+      { id: "m2", pos: { x: 28, y: 26 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m1"] },
+      { id: "m3", pos: { x: 43, y: 26 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m2"] },
+      { id: "m4", pos: { x: 58, y: 26 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m3"] },
+      { id: "m5", pos: { x: 73, y: 26 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m4"] },
+      { id: "m6", pos: { x: 88, y: 26 }, orientations: 4, startIndex: 0, correctIndex: 0, autoRotate: true, autoRotateMs: 1200 },
     ],
     diyas: [
       { id: "d1", pos: { x: 28, y: 88 }, size: "sm" },
@@ -155,7 +160,33 @@ export const LEVELS: LevelConfig[] = [
     hideTapHints: true,
     tutorial: {
       title: "The final test!",
-      body: "Follow each mirror's ghost ray. Plan the full chain BEFORE you tap.",
+      body: "Solve the locked chain in order. The last mirror spins on its own — wait for the right moment.",
     },
   },
 ];
+
+// Auto-compute each mirror's correct rotation from geometry: it points toward
+// the next mirror (or the first diya for the last mirror). The starting
+// rotation is always 180° opposite, so the ghost-ray clearly mis-aims and
+// the player has to think about each mirror's true target.
+function withComputedAngles(raw: LevelConfig): LevelConfig {
+  const mirrors = raw.mirrors.map((m, i) => {
+    const N = m.orientations ?? 4;
+    const target =
+      i < raw.mirrors.length - 1
+        ? raw.mirrors[i + 1].pos
+        : raw.diyas[0]?.pos ?? m.pos;
+    const dx = target.x - m.pos.x;
+    const dy = target.y - m.pos.y;
+    // Mirror's arrow points up at rotation 0 → dir (sin θ, -cos θ).
+    // Solve: θ = atan2(dx, -dy).
+    const theta = Math.atan2(dx, -dy);
+    let correct = Math.round((theta / (2 * Math.PI)) * N);
+    correct = ((correct % N) + N) % N;
+    const start = m.autoRotate ? correct : (correct + 2) % N;
+    return { ...m, correctIndex: correct, startIndex: start };
+  });
+  return { ...raw, mirrors };
+}
+
+export const LEVELS: LevelConfig[] = RAW_LEVELS.map(withComputedAngles);
