@@ -39,7 +39,7 @@ function GamePage() {
 
   const begin = useCallback(() => {
     unlockAudio();
-    startMusic("sad", 0.5);
+    startMusic("sad", 0.62);
     setScreen({ kind: "intro" });
   }, []);
 
@@ -60,9 +60,9 @@ function GamePage() {
       stopMusic();
       return;
     }
-    if (screen.kind === "intro") startMusic("sad", 0.5);
+    if (screen.kind === "intro") startMusic("sad", 0.62);
     else if (screen.kind === "level" || screen.kind === "finale")
-      startMusic("festive", 0.55);
+      startMusic("festive", 0.58);
   }, [muted, screen.kind]);
 
   return (

@@ -142,6 +142,14 @@ function ElephantBase({
           <circle cx="136" cy={sad ? 100 : 103} r="2.4" fill="white" />
         </g>
 
+        {/* Soft curved lashes make the mascot feel sweeter without obscuring his eyes. */}
+        <g stroke="#3a2548" strokeWidth="2" strokeLinecap="round" fill="none">
+          <path d="M 83 94 Q 92 87 103 94" />
+          <path d="M 84 92 L 80 88 M 89 89 L 87 84 M 98 90 L 101 85" />
+          <path d="M 123 94 Q 133 87 143 94" />
+          <path d="M 125 90 L 122 85 M 136 89 L 138 84 M 142 92 L 146 88" />
+        </g>
+
         {/* Sad brows + tears */}
         {sad && (
           <>
