@@ -109,6 +109,8 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           pos={m.pos}
           rotation={aligned[m.id] ? m.alignedRotation : m.misalignedRotation}
           aligned={!!aligned[m.id]}
+          requiredTaps={m.requiredTaps ?? 1}
+          tapsTaken={tapCounts[m.id] ?? 0}
           hint={level.hintMirrorId === m.id && !aligned[m.id] && Object.keys(aligned).length === 0}
           onTap={() => tapMirror(m.id)}
         />
