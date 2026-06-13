@@ -26,12 +26,6 @@ export function useLevelState(level: LevelConfig) {
     for (const m of level.mirrors) {
       const need = m.requiredTaps ?? 1;
       const taps = tapCounts[m.id] ?? 0;
-      // Lock on when exactly the right count is reached (further taps still
-      // increment visually but won't unlock; once aligned, stays aligned).
-      out[m.id] = taps >= need && (taps - need) % Math.max(need, 1) === 0
-        ? true
-        : taps === need;
-      // Simpler: aligned when taps >= need (don't allow over-rotating to break it).
       out[m.id] = taps >= need;
     }
     return out;
