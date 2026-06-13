@@ -164,11 +164,11 @@ function MirrorBase({
           <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
           {/* Outer gold frame */}
-          <circle cx="60" cy="58" r="56" fill="url(#mFrame)" />
+          <circle cx="60" cy="58" r="56" fill={aligned ? "url(#mFrameGold)" : "url(#mFrameSilver)"} />
           <circle cx="60" cy="58" r="46" fill="#7a3a14" />
 
           {/* Reflective glass */}
-          <circle cx="60" cy="58" r="42" fill="url(#mGlass)" />
+          <circle cx="60" cy="58" r="42" fill={aligned ? "url(#mGlassGold)" : "url(#mGlassIdle)"} />
 
           {/* Sky reflection arc — gives "mirror reflecting the world" feel */}
           <g clipPath="url(#mClip)">
