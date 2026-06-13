@@ -50,48 +50,47 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
 
   useEffect(() => {
     if (!allAligned) return;
-    sfx.beamConnect();
+    // Single, satisfying success chord — no overlapping bleeps.
+    sfx.levelComplete();
     const t1 = setTimeout(() => {
-      level.diyas.forEach((_, i) => setTimeout(() => sfx.diyaLight(), i * 90));
-      sfx.levelComplete();
       sfx.applause();
       setCelebrating(true);
-    }, 350);
+    }, 400);
+    // A few spaced-out fireworks — not a rapid barrage.
     const fireworkTimers: number[] = [];
-    for (let i = 0; i < 10; i++) {
-      fireworkTimers.push(window.setTimeout(() => sfx.firework(), 600 + i * 600));
-    }
-    [2000, 4400, 6800].forEach((t) =>
-      fireworkTimers.push(window.setTimeout(() => sfx.cheer(), t)),
+    [800, 1700, 2600, 3700, 5000].forEach((t) =>
+      fireworkTimers.push(window.setTimeout(() => sfx.firework(), t)),
     );
-    const t2 = setTimeout(onComplete, 8200);
+    fireworkTimers.push(window.setTimeout(() => sfx.cheer(), 3200));
+    const t2 = setTimeout(onComplete, 7200);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       fireworkTimers.forEach(clearTimeout);
     };
-  }, [allAligned, level.diyas, onComplete]);
+  }, [allAligned, onComplete]);
 
   const brightness = Math.min(1, level.brightness + (allAligned ? 0.55 : 0));
 
-  // Warm palette only — gold, marigold, rose.
+  // Particle-based fireworks — each firework expands outward in all
+  // directions like real ones (no single-line ray tips).
   const fireworks = useMemo(
     () =>
-      Array.from({ length: 12 }).map((_, i) => ({
+      Array.from({ length: 7 }).map((_, i) => ({
         id: i,
-        x: 10 + (i / 11) * 80 + (Math.random() - 0.5) * 6,
-        y: 8 + Math.random() * 36,
-        delay: 0.4 + i * 0.45,
-        hue: [45, 30, 15, 60, 75, 25, 50, 40][i % 8],
-        size: 140 + Math.random() * 90,
+        x: 12 + (i / 6) * 76 + (Math.random() - 0.5) * 8,
+        y: 10 + Math.random() * 32,
+        delay: 0.5 + i * 0.6 + Math.random() * 0.3,
+        hue: [45, 30, 15, 60, 25, 50, 40][i % 7],
+        size: 140 + Math.random() * 70,
+        particles: 26 + Math.floor(Math.random() * 8),
       })),
     [level.id],
   );
 
   const minDim = Math.min(size.w, size.h) || 600;
-  // Responsive mirror size — fits Chromebook short screens too.
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
-  const elephantSize = level.elephantSize ?? Math.max(110, Math.min(180, minDim * 0.22));
+  const elephantSize = level.elephantSize ?? Math.max(140, Math.min(210, minDim * 0.26));
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
@@ -125,6 +124,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           key={o.id}
           obstacle={o}
           cleared={!!cleared[o.id]}
+          hideHint={level.hideTapHints}
           onTap={() => tapObstacle(o.id)}
         />
       ))}
@@ -138,62 +138,56 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           aligned={!!aligned[m.id]}
           requiredTaps={m.requiredTaps ?? 1}
           tapsTaken={tapCounts[m.id] ?? 0}
+          spinning={!!m.spinning}
+          hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id] && Object.keys(aligned).length === 0}
-          onTap={() => tapMirror(m.id)}
+          onTap={(success) => tapMirror(m.id, success ?? true)}
         />
       ))}
 
       {allAligned && level.diyas.map((d) => <SuccessSparkles key={d.id} x={d.pos.x} y={d.pos.y} />)}
 
+      {/* Particle fireworks — burst outward in all directions */}
       {allAligned && (
         <div className="absolute inset-0 pointer-events-none">
           {fireworks.map((f) => (
             <div key={f.id} className="absolute" style={{ left: `${f.x}%`, top: `${f.y}%` }}>
-              {/* Soft core glow (small, not a big flash) */}
+              {/* soft warm core */}
               <div
-                className="rounded-full"
+                className="absolute rounded-full"
                 style={{
-                  width: f.size * 0.35,
-                  height: f.size * 0.35,
-                  marginLeft: -f.size * 0.175,
-                  marginTop: -f.size * 0.175,
-                  background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue} / 0.9), transparent 70%)`,
-                  animation: "firework-burst 2s ease-out infinite",
+                  width: f.size * 0.28,
+                  height: f.size * 0.28,
+                  left: -f.size * 0.14,
+                  top: -f.size * 0.14,
+                  background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue} / 0.9), transparent 70%)`,
+                  animation: "firework-burst 1.8s ease-out infinite",
                   animationDelay: `${f.delay}s`,
                 }}
               />
-              {/* Star-shaped ray tips — many short lines, each ending in a sparkle dot */}
-              {Array.from({ length: 18 }).map((_, k) => {
-                const angle = (k / 18) * Math.PI * 2;
-                const len = f.size * (0.32 + (k % 2) * 0.1);
+              {Array.from({ length: f.particles }).map((_, k) => {
+                const angle = (k / f.particles) * Math.PI * 2 + Math.random() * 0.25;
+                const r = f.size * (0.45 + Math.random() * 0.35);
+                const tx = Math.cos(angle) * r;
+                const ty = Math.sin(angle) * r;
+                const hue = f.hue + (Math.random() * 18 - 9);
                 return (
                   <span
                     key={k}
-                    className="absolute left-0 top-0"
-                    style={{
-                      width: len,
-                      height: 0,
-                      transform: `rotate(${(angle * 180) / Math.PI}deg)`,
-                      animation: "firework-rays 2s ease-out infinite",
-                      animationDelay: `${f.delay}s`,
-                      transformOrigin: "0 0",
-                    }}
-                  >
-                    <span
-                      className="block h-[2px] rounded-full"
-                      style={{
-                        width: "100%",
-                        background: `linear-gradient(90deg, transparent, oklch(0.96 0.22 ${f.hue}) 60%, oklch(0.98 0.2 ${f.hue}))`,
-                      }}
-                    />
-                    <span
-                      className="absolute right-[-3px] top-[-3px] h-[7px] w-[7px] rounded-full"
-                      style={{
-                        background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue}), transparent 70%)`,
-                        boxShadow: `0 0 10px oklch(0.96 0.22 ${f.hue})`,
-                      }}
-                    />
-                  </span>
+                    className="absolute left-0 top-0 block h-[6px] w-[6px] rounded-full"
+                    style={
+                      {
+                        marginLeft: -3,
+                        marginTop: -3,
+                        background: `radial-gradient(circle, oklch(0.98 0.22 ${hue}), transparent 70%)`,
+                        boxShadow: `0 0 10px oklch(0.96 0.22 ${hue}), 0 0 4px oklch(0.98 0.2 ${hue})`,
+                        animation: "firework-particle 1.8s cubic-bezier(.2,.7,.3,1) infinite",
+                        animationDelay: `${f.delay}s`,
+                        "--tx": `${tx}px`,
+                        "--ty": `${ty}px`,
+                      } as React.CSSProperties
+                    }
+                  />
                 );
               })}
             </div>
@@ -201,7 +195,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         </div>
       )}
 
-      {/* Elephant — small, on the ground, off to one side. Never covers a diya. */}
+      {/* Elephant — bigger, on the ground, off to one side. */}
       <div
         className="absolute -translate-x-1/2 -translate-y-full pointer-events-none z-[5]"
         style={{ left: `${level.elephantPos.x}%`, top: `${level.elephantPos.y}%` }}
@@ -209,7 +203,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         <Elephant size={elephantSize} pointing={!allAligned} celebrating={celebrating} />
       </div>
 
-      {/* Title card — top of screen */}
+      {/* Title card */}
       <div
         className="absolute left-1/2 top-2 -translate-x-1/2 text-center pointer-events-none z-30"
         style={{ animation: "slide-up-fade 0.7s ease-out both" }}
@@ -222,7 +216,6 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         </h2>
       </div>
 
-      {/* First-time tutorial card — kid-friendly, big, dismissable */}
       {showTutorial && level.tutorial && (
         <div
           className="absolute inset-0 z-40 flex items-center justify-center bg-black/55 backdrop-blur-sm"

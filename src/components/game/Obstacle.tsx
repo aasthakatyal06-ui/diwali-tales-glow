@@ -4,10 +4,11 @@ import type { ObstacleConfig } from "@/game/types";
 interface ObstacleProps {
   obstacle: ObstacleConfig;
   cleared?: boolean;
+  hideHint?: boolean;
   onTap?: () => void;
 }
 
-function ObstacleBase({ obstacle, cleared, onTap }: ObstacleProps) {
+function ObstacleBase({ obstacle, cleared, hideHint, onTap }: ObstacleProps) {
   const { pos, kind, blocking, moving, range = 6 } = obstacle;
   const interactive = !!blocking && !cleared;
   const [tapped, setTapped] = useState(false);
@@ -65,15 +66,17 @@ function ObstacleBase({ obstacle, cleared, onTap }: ObstacleProps) {
                 animation: "breathe 1.2s ease-in-out infinite",
               }}
             />
-            <span
-              className="font-hand absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-base font-bold text-[#5a2a0a] shadow-lg pointer-events-none"
-              style={{
-                background: "linear-gradient(180deg,#fff5d6,#ffd994)",
-                animation: "float-soft 1.6s ease-in-out infinite",
-              }}
-            >
-              Tap to move!
-            </span>
+            {!hideHint && (
+              <span
+                className="font-hand absolute -top-9 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-base font-bold text-[#5a2a0a] shadow-lg pointer-events-none"
+                style={{
+                  background: "linear-gradient(180deg,#fff5d6,#ffd994)",
+                  animation: "float-soft 1.6s ease-in-out infinite",
+                }}
+              >
+                Tap to move!
+              </span>
+            )}
           </>
         )}
 

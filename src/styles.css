@@ -217,6 +217,12 @@
   0%, 100% { transform: translate(calc(-50% - var(--range, 6vw)), -50%) }
   50% { transform: translate(calc(-50% + var(--range, 6vw)), -50%) }
 }
+@keyframes firework-particle {
+  0% { transform: translate(0, 0) scale(0.6); opacity: 0 }
+  8% { opacity: 1; transform: translate(calc(var(--tx) * 0.08), calc(var(--ty) * 0.08)) scale(1.1) }
+  60% { opacity: 0.9; transform: translate(calc(var(--tx) * 0.85), calc(var(--ty) * 0.85 + 14px)) scale(0.9) }
+  100% { transform: translate(var(--tx), calc(var(--ty) + 42px)) scale(0.2); opacity: 0 }
+}
 
 .font-display { font-family: var(--font-display); letter-spacing: 0.02em; }
 .font-body { font-family: var(--font-body); }
