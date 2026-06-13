@@ -27,6 +27,8 @@ function MirrorBase({
   requiredTaps = 1,
   tapsTaken = 0,
   spinning = false,
+  splitter = false,
+
   hideHint = false,
   size = 120,
   onTap,
