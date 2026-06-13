@@ -23,7 +23,7 @@ function getCtx(): AudioContext | null {
       (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     ctx = new AC();
     masterGain = ctx.createGain();
-    masterGain.gain.value = 0.9;
+    masterGain.gain.value = 1.0;
     masterGain.connect(ctx.destination);
     return ctx;
   } catch (err) {
@@ -122,6 +122,10 @@ function fadeIn(audio: HTMLAudioElement, target: number, durationMs: number) {
   }, stepMs);
 }
 
+// Tracks the gain node for the active music so we can boost above 1.0.
+let musicGain: GainNode | null = null;
+const MUSIC_BOOST = 1.8; // pump background music well above the file level
+
 export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
   if (typeof window === "undefined") return;
 
@@ -132,6 +136,7 @@ export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
 
   if (currentMode === mode && musicAudio) {
     musicAudio.volume = Math.min(1, volume);
+    if (musicGain) musicGain.gain.value = MUSIC_BOOST;
     if (musicAudio.paused) void musicAudio.play().catch(() => {});
     return;
   }
@@ -140,6 +145,7 @@ export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
   if (musicAudio) {
     const old = musicAudio;
     musicAudio = null;
+    musicGain = null;
     fadeOut(old, 900);
   }
   if (watchdog !== null) {
@@ -151,11 +157,27 @@ export function startMusic(mode: MusicMode = "festive", volume = 1.0) {
   const audio = new Audio(mode === "sad" ? sadMusicUrl : festiveMusicUrl);
   audio.loop = true;
   audio.preload = "auto";
+  audio.crossOrigin = "anonymous";
   audio.addEventListener("ended", () => {
     audio.currentTime = 0;
     void audio.play().catch(() => {});
   });
   musicAudio = audio;
+
+  // Pipe through WebAudio so we can amplify louder than the source file.
+  const c = getCtx();
+  if (c && masterGain) {
+    try {
+      const source = c.createMediaElementSource(audio);
+      const gain = c.createGain();
+      gain.gain.value = MUSIC_BOOST;
+      source.connect(gain).connect(masterGain);
+      musicGain = gain;
+    } catch {
+      // Browser may have already captured the element; fall back to element volume.
+    }
+  }
+
   fadeIn(audio, Math.min(1, volume), 700);
   void audio.play().catch(() => {});
 
