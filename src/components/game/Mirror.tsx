@@ -116,8 +116,15 @@ function MirrorBase({
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
           <defs>
-            {/* Highly reflective glass — bright sky-like radial with chrome streak */}
-            <radialGradient id="mGlass" cx="38%" cy="30%" r="80%">
+            {/* Silvery (idle) glass */}
+            <radialGradient id="mGlassIdle" cx="38%" cy="30%" r="80%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="25%" stopColor="#e8eef5" />
+              <stop offset="60%" stopColor="#9aa6b6" />
+              <stop offset="100%" stopColor="#3a4250" />
+            </radialGradient>
+            {/* Golden (aligned) glass */}
+            <radialGradient id="mGlassGold" cx="38%" cy="30%" r="80%">
               <stop offset="0%" stopColor="#ffffff" />
               <stop offset="22%" stopColor="#fff7e0" />
               <stop offset="55%" stopColor="#ffd49a" />
@@ -129,11 +136,17 @@ function MirrorBase({
               <stop offset="55%" stopColor="#ffffff" stopOpacity="0.85" />
               <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
             </linearGradient>
-            <linearGradient id="mFrame" x1="0" y1="0" x2="1" y2="1">
+            <linearGradient id="mFrameGold" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#fff0b0" />
               <stop offset="45%" stopColor="#e6b13a" />
               <stop offset="100%" stopColor="#7a4a0e" />
             </linearGradient>
+            <linearGradient id="mFrameSilver" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#f0f3f7" />
+              <stop offset="50%" stopColor="#a8b2c0" />
+              <stop offset="100%" stopColor="#4a5260" />
+            </linearGradient>
+
             <linearGradient id="mHandle" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#d49a3a" />
               <stop offset="100%" stopColor="#5a2a0a" />
