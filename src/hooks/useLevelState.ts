@@ -11,13 +11,16 @@ export function useLevelState(level: LevelConfig) {
     setCleared({});
   }, [level.id]);
 
-  const tapMirror = useCallback((id: string) => {
+  /** success=false means the mirror was tapped but didn't lock (used by
+   *  spinning mirrors when the player mistimes the tap). */
+  const tapMirror = useCallback((id: string, success: boolean = true) => {
     sfx.mirrorTap();
+    if (!success) return;
     setTapCounts((prev) => ({ ...prev, [id]: (prev[id] ?? 0) + 1 }));
   }, []);
 
   const tapObstacle = useCallback((id: string) => {
-    sfx.shimmer();
+    sfx.mirrorTap();
     setCleared((prev) => ({ ...prev, [id]: true }));
   }, []);
 

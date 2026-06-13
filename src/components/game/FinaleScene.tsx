@@ -19,10 +19,11 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
   useEffect(() => {
     sfx.finale();
     const intervals: number[] = [];
-    for (let i = 0; i < 14; i++) {
-      intervals.push(window.setTimeout(() => sfx.firework(), 400 + i * 900));
+    // Spaced-out fireworks — not a constant barrage.
+    for (let i = 0; i < 8; i++) {
+      intervals.push(window.setTimeout(() => sfx.firework(), 600 + i * 1400));
     }
-    [1200, 5500, 10000].forEach((t) =>
+    [1200, 6000].forEach((t) =>
       intervals.push(window.setTimeout(() => sfx.applause(), t)),
     );
     const t = setTimeout(() => setShowButton(true), 12000);
@@ -32,16 +33,17 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
     };
   }, []);
 
-  // Cohesive warm palette only (gold, marigold, rose, peach).
+  // Particle fireworks — burst in all directions like real ones.
   const fireworks = useMemo(
     () =>
-      Array.from({ length: 14 }).map((_, i) => ({
+      Array.from({ length: 10 }).map((_, i) => ({
         id: i,
-        x: 8 + (i / 13) * 84 + (Math.random() - 0.5) * 6,
-        y: 8 + Math.random() * 40,
-        delay: 0.3 + Math.random() * 10,
+        x: 8 + (i / 9) * 84 + (Math.random() - 0.5) * 6,
+        y: 8 + Math.random() * 38,
+        delay: 0.3 + Math.random() * 11,
         hue: [45, 30, 15, 60, 75, 25, 50, 40, 20, 55][i % 10],
-        size: 200 + Math.random() * 160,
+        size: 180 + Math.random() * 130,
+        particles: 30 + Math.floor(Math.random() * 10),
       })),
     [],
   );
@@ -106,53 +108,45 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         ))}
       </div>
 
-      {/* Star-shaped fireworks — warm palette, no big white flashes */}
+      {/* Particle fireworks — radiate in all directions, then fade with gravity */}
       <div className="absolute inset-0 pointer-events-none">
         {fireworks.map((f) => (
           <div key={f.id} className="absolute" style={{ left: `${f.x}%`, top: `${f.y}%` }}>
             <div
-              className="rounded-full"
+              className="absolute rounded-full"
               style={{
-                width: f.size * 0.3,
-                height: f.size * 0.3,
-                marginLeft: -f.size * 0.15,
-                marginTop: -f.size * 0.15,
-                background: `radial-gradient(circle, oklch(0.96 0.2 ${f.hue} / 0.9), transparent 70%)`,
-                animation: "firework-burst 2.2s ease-out infinite",
+                width: f.size * 0.26,
+                height: f.size * 0.26,
+                left: -f.size * 0.13,
+                top: -f.size * 0.13,
+                background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue} / 0.9), transparent 70%)`,
+                animation: "firework-burst 2s ease-out infinite",
                 animationDelay: `${f.delay}s`,
               }}
             />
-            {Array.from({ length: 20 }).map((_, k) => {
-              const angle = (k / 20) * Math.PI * 2;
-              const len = f.size * (0.32 + (k % 2) * 0.12);
+            {Array.from({ length: f.particles }).map((_, k) => {
+              const angle = (k / f.particles) * Math.PI * 2 + Math.random() * 0.2;
+              const r = f.size * (0.45 + Math.random() * 0.35);
+              const tx = Math.cos(angle) * r;
+              const ty = Math.sin(angle) * r;
+              const hue = f.hue + (Math.random() * 16 - 8);
               return (
                 <span
                   key={k}
-                  className="absolute left-0 top-0"
-                  style={{
-                    width: len,
-                    height: 0,
-                    transform: `rotate(${(angle * 180) / Math.PI}deg)`,
-                    transformOrigin: "0 0",
-                    animation: "firework-rays 2.2s ease-out infinite",
-                    animationDelay: `${f.delay}s`,
-                  }}
-                >
-                  <span
-                    className="block h-[2px] rounded-full"
-                    style={{
-                      width: "100%",
-                      background: `linear-gradient(90deg, transparent, oklch(0.96 0.22 ${f.hue}) 60%, oklch(0.98 0.2 ${f.hue}))`,
-                    }}
-                  />
-                  <span
-                    className="absolute right-[-3px] top-[-3px] h-[7px] w-[7px] rounded-full"
-                    style={{
-                      background: `radial-gradient(circle, oklch(0.98 0.22 ${f.hue}), transparent 70%)`,
-                      boxShadow: `0 0 10px oklch(0.96 0.22 ${f.hue})`,
-                    }}
-                  />
-                </span>
+                  className="absolute left-0 top-0 block h-[6px] w-[6px] rounded-full"
+                  style={
+                    {
+                      marginLeft: -3,
+                      marginTop: -3,
+                      background: `radial-gradient(circle, oklch(0.98 0.22 ${hue}), transparent 70%)`,
+                      boxShadow: `0 0 10px oklch(0.96 0.22 ${hue}), 0 0 4px oklch(0.98 0.2 ${hue})`,
+                      animation: "firework-particle 2s cubic-bezier(.2,.7,.3,1) infinite",
+                      animationDelay: `${f.delay}s`,
+                      "--tx": `${tx}px`,
+                      "--ty": `${ty}px`,
+                    } as React.CSSProperties
+                  }
+                />
               );
             })}
           </div>
@@ -186,23 +180,37 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         <Elephant size={Math.min(280, typeof window !== "undefined" ? window.innerHeight * 0.55 : 260)} celebrating />
       </div>
 
-      {/* Title card */}
+      {/* Title card — wrapped in a translucent panel so text is readable
+          against the fireworks/lanterns/dancers behind it. */}
       <div
-        className="absolute inset-x-0 top-10 text-center px-6 z-20"
+        className="absolute inset-x-0 top-6 flex justify-center px-4 z-20"
         style={{ animation: "slide-up-fade 1s ease-out 0.6s both" }}
       >
-        <div className="flex items-center justify-center gap-2 text-[oklch(0.86_0.16_75)]">
-          <Heart className="h-4 w-4 fill-current" />
-          <span className="font-display text-xs uppercase tracking-[0.4em]">Happy Diwali</span>
-          <Heart className="h-4 w-4 fill-current" />
-        </div>
-        <h1
-          className="mt-2 font-display text-5xl text-white sm:text-6xl md:text-7xl"
-          style={{ animation: "title-glow 3s ease-in-out infinite" }}
+        <div
+          className="max-w-3xl rounded-3xl px-8 py-5 text-center ring-1 ring-white/20"
+          style={{
+            background:
+              "linear-gradient(180deg, oklch(0.12 0.06 280 / 0.7), oklch(0.18 0.08 30 / 0.55))",
+            backdropFilter: "blur(10px)",
+            WebkitBackdropFilter: "blur(10px)",
+            boxShadow: "0 10px 40px oklch(0.05 0 0 / 0.6)",
+          }}
         >
-          You brought the festival back
-        </h1>
-        <p className="mt-3 text-white/85 md:text-lg">The whole village is dancing because of you.</p>
+          <div className="flex items-center justify-center gap-2 text-[oklch(0.92_0.16_75)]">
+            <Heart className="h-4 w-4 fill-current" />
+            <span className="font-display text-xs uppercase tracking-[0.4em]">Happy Diwali</span>
+            <Heart className="h-4 w-4 fill-current" />
+          </div>
+          <h1
+            className="mt-2 font-display text-4xl text-white sm:text-5xl md:text-6xl leading-tight"
+            style={{ animation: "title-glow 3s ease-in-out infinite" }}
+          >
+            You brought the festival back
+          </h1>
+          <p className="font-hand mt-4 text-xl text-white md:text-2xl">
+            The whole village is dancing because of you.
+          </p>
+        </div>
       </div>
 
       {showButton && (

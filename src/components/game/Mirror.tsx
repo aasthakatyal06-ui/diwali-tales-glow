@@ -1,4 +1,4 @@
-import { memo, useState } from "react";
+import { memo, useRef, useState } from "react";
 import type { Point } from "@/game/types";
 
 interface MirrorProps {
@@ -8,9 +8,14 @@ interface MirrorProps {
   hint?: boolean;
   requiredTaps?: number;
   tapsTaken?: number;
+  spinning?: boolean;
+  hideHint?: boolean;
   size?: number;
-  onTap: () => void;
+  onTap: (success?: boolean) => void;
 }
+
+const SPIN_MS = 2600;
+const ALIGN_TOLERANCE_DEG = 22; // forgiving window for kids
 
 function MirrorBase({
   pos,
@@ -19,22 +24,40 @@ function MirrorBase({
   hint,
   requiredTaps = 1,
   tapsTaken = 0,
+  spinning = false,
+  hideHint = false,
   size = 120,
   onTap,
 }: MirrorProps) {
   const [extraSpins, setExtraSpins] = useState(0);
+  const mountRef = useRef(Date.now());
   const partial = aligned ? 0 : (tapsTaken / Math.max(requiredTaps, 1)) * 90;
-  const visualRotation = rotation + extraSpins * 180 + partial;
   const w = size;
   const h = size * 1.33;
 
   const handleTap = () => {
+    if (aligned) return;
+    if (spinning) {
+      const phase = ((Date.now() - mountRef.current) % SPIN_MS) / SPIN_MS;
+      const curRot = phase * 360;
+      const dist = Math.min(curRot, 360 - curRot);
+      const success = dist < ALIGN_TOLERANCE_DEG;
+      onTap(success);
+      if (!success) setExtraSpins((n) => n + 1);
+      return;
+    }
     setExtraSpins((n) => n + 1);
-    onTap();
+    onTap(true);
   };
 
   const remaining = Math.max(0, requiredTaps - tapsTaken);
-  const showTapsBadge = requiredTaps > 1 && !aligned;
+  const showTapsBadge = !hideHint && requiredTaps > 1 && !aligned && !spinning;
+
+  // Visual rotation logic
+  const visualRotation =
+    spinning && !aligned
+      ? null // CSS animation drives rotation when spinning
+      : rotation + extraSpins * 180 + partial;
 
   return (
     <button
@@ -83,20 +106,29 @@ function MirrorBase({
         style={{
           width: w,
           height: h,
-          transform: `rotate(${visualRotation}deg)`,
+          transform: visualRotation !== null ? `rotate(${visualRotation}deg)` : undefined,
+          animation: visualRotation === null ? `spin-cw ${SPIN_MS}ms linear infinite` : undefined,
           transition: "transform 0.9s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
           filter: aligned
-            ? "drop-shadow(0 0 32px oklch(0.94 0.16 75 / 0.95))"
-            : "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6))",
+            ? "drop-shadow(0 0 38px oklch(0.96 0.18 75 / 1)) drop-shadow(0 0 14px oklch(0.98 0.14 85 / 0.9))"
+            : "drop-shadow(0 8px 14px oklch(0.05 0 0 / 0.6)) drop-shadow(0 0 10px oklch(0.92 0.1 80 / 0.4))",
         }}
       >
         <svg viewBox="0 0 120 160" className="h-full w-full">
           <defs>
-            <radialGradient id="mGlass" cx="40%" cy="35%" r="75%">
-              <stop offset="0%" stopColor="#fff6df" />
+            {/* Highly reflective glass — bright sky-like radial with chrome streak */}
+            <radialGradient id="mGlass" cx="38%" cy="30%" r="80%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="22%" stopColor="#fff7e0" />
               <stop offset="55%" stopColor="#ffd49a" />
-              <stop offset="100%" stopColor="#a35a1e" />
+              <stop offset="100%" stopColor="#7a3a0e" />
             </radialGradient>
+            <linearGradient id="mSheen" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0" />
+              <stop offset="45%" stopColor="#ffffff" stopOpacity="0.85" />
+              <stop offset="55%" stopColor="#ffffff" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+            </linearGradient>
             <linearGradient id="mFrame" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#fff0b0" />
               <stop offset="45%" stopColor="#e6b13a" />
@@ -106,6 +138,9 @@ function MirrorBase({
               <stop offset="0%" stopColor="#d49a3a" />
               <stop offset="100%" stopColor="#5a2a0a" />
             </linearGradient>
+            <clipPath id="mClip">
+              <circle cx="60" cy="58" r="42" />
+            </clipPath>
           </defs>
 
           <rect x="52" y="95" width="16" height="52" rx="8" fill="url(#mHandle)" />
@@ -115,19 +150,50 @@ function MirrorBase({
           <rect x="46" y="144" width="28" height="8" rx="3" fill="#e6b13a" />
           <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
+          {/* Outer gold frame */}
           <circle cx="60" cy="58" r="56" fill="url(#mFrame)" />
           <circle cx="60" cy="58" r="46" fill="#7a3a14" />
+
+          {/* Reflective glass */}
           <circle cx="60" cy="58" r="42" fill="url(#mGlass)" />
-          <path
-            d="M 30 50 A 32 32 0 0 1 80 30"
-            stroke="#ffffff"
-            strokeWidth="6"
+
+          {/* Sky reflection arc — gives "mirror reflecting the world" feel */}
+          <g clipPath="url(#mClip)">
+            <rect x="18" y="20" width="84" height="32" fill="#ffe9b0" opacity="0.45" />
+            <ellipse cx="44" cy="34" rx="12" ry="4" fill="#ffffff" opacity="0.75" />
+            <ellipse cx="76" cy="42" rx="8" ry="3" fill="#ffffff" opacity="0.55" />
+            {/* moving sheen streak */}
+            <rect
+              x="-30"
+              y="20"
+              width="40"
+              height="76"
+              fill="url(#mSheen)"
+              opacity="0.7"
+              style={{ animation: "mirror-shine 3.2s ease-in-out infinite" }}
+            />
+          </g>
+
+          {/* Crisp white rim highlight */}
+          <circle
+            cx="60"
+            cy="58"
+            r="41"
             fill="none"
+            stroke="#ffffff"
+            strokeWidth="1.5"
             opacity="0.6"
+          />
+          <path
+            d="M 28 50 A 32 32 0 0 1 80 28"
+            stroke="#ffffff"
+            strokeWidth="5"
+            fill="none"
+            opacity="0.75"
             strokeLinecap="round"
           />
-          <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity="0.55" />
-          <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity="0.4" />
+          <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity="0.7" />
+          <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity="0.5" />
 
           {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
             const r = 51;
@@ -145,9 +211,9 @@ function MirrorBase({
               cy="58"
               r="42"
               fill="none"
-              stroke="oklch(0.95 0.18 85)"
+              stroke="oklch(0.98 0.18 85)"
               strokeWidth="3"
-              opacity="0.9"
+              opacity="0.95"
             />
           )}
         </svg>
