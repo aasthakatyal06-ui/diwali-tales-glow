@@ -164,27 +164,26 @@ export function FinaleScene({ onReplay }: FinaleSceneProps) {
         <Diya key={d.id} pos={{ x: d.x, y: d.y }} lit size={d.size} />
       ))}
 
-      {/* Two big dancers flanking the elephant — properly animated like the
-          elephant: cute eyes, smile, swaying limbs. */}
+      {/* Two big dancers flanking the elephant — gentle sway, no spinning */}
       <div
-        className="absolute left-[10%] bottom-[4%] pointer-events-none z-10"
+        className="absolute left-[8%] bottom-[3%] pointer-events-none z-10"
         style={{ animation: "slide-up-fade 1s ease-out 0.6s both" }}
       >
-        <WomanDancer size={300} />
+        <WomanDancer size={Math.min(260, typeof window !== "undefined" ? window.innerHeight * 0.5 : 240)} />
       </div>
       <div
-        className="absolute right-[10%] bottom-[4%] pointer-events-none z-10"
+        className="absolute right-[8%] bottom-[3%] pointer-events-none z-10"
         style={{ animation: "slide-up-fade 1s ease-out 0.8s both" }}
       >
-        <ManDancer size={300} />
+        <ManDancer size={Math.min(260, typeof window !== "undefined" ? window.innerHeight * 0.5 : 240)} />
       </div>
 
       {/* Hero elephant in the center */}
       <div
-        className="absolute left-1/2 bottom-[4%] -translate-x-1/2 pointer-events-none z-20"
+        className="absolute left-1/2 bottom-[3%] -translate-x-1/2 pointer-events-none z-20"
         style={{ animation: "slide-up-fade 1.4s ease-out 0.3s both" }}
       >
-        <Elephant size={320} celebrating />
+        <Elephant size={Math.min(280, typeof window !== "undefined" ? window.innerHeight * 0.55 : 260)} celebrating />
       </div>
 
       {/* Title card */}
