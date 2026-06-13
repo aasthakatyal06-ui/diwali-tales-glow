@@ -39,7 +39,7 @@ function GamePage() {
 
   const begin = useCallback(() => {
     unlockAudio();
-    startMusic(0.45);
+    startMusic("sad", 0.5);
     setScreen({ kind: "intro" });
   }, []);
 
@@ -56,8 +56,13 @@ function GamePage() {
   const replay = useCallback(() => setScreen({ kind: "title" }), []);
 
   useEffect(() => {
-    if (muted) stopMusic();
-    else if (screen.kind !== "title") startMusic(0.45);
+    if (muted) {
+      stopMusic();
+      return;
+    }
+    if (screen.kind === "intro") startMusic("sad", 0.5);
+    else if (screen.kind === "level" || screen.kind === "finale")
+      startMusic("festive", 0.55);
   }, [muted, screen.kind]);
 
   return (
