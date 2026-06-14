@@ -14,6 +14,8 @@ export interface MirrorConfig {
   correctIndex: number;
   /** Mirror cannot be tapped until ALL of these mirrors are aligned. */
   lockedUntil?: string[];
+  /** Decoy mirror: not on the beam path, never turns golden, no ghost ray. */
+  decoy?: boolean;
 }
 
 export interface DiyaConfig {

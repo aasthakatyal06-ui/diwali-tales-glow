@@ -9,6 +9,7 @@ interface MirrorProps {
   hideHint?: boolean;
   size?: number;
   locked?: boolean;
+  decoy?: boolean;
   onTap: () => void;
 }
 
@@ -25,6 +26,7 @@ function MirrorBase({
   hideHint = false,
   size = 120,
   locked = false,
+  decoy = false,
   onTap,
 }: MirrorProps) {
   const w = size;
@@ -117,39 +119,39 @@ function MirrorBase({
           <rect x="46" y="144" width="28" height="8" rx="3" fill="#e6b13a" />
           <circle cx="60" cy="156" r="4" fill="#c24a1a" stroke="#fff2cc" strokeWidth="0.8" />
 
-          <circle cx="60" cy="58" r="56" fill={aligned ? "url(#mFrameGold)" : "url(#mFrameSilver)"} />
-          <circle cx="60" cy="58" r="46" fill="#7a3a14" />
-          <circle cx="60" cy="58" r="42" fill={aligned ? "url(#mGlassGold)" : "url(#mGlassIdle)"} />
+          <circle cx="60" cy="58" r="56" fill={aligned && !decoy ? "url(#mFrameGold)" : "url(#mFrameSilver)"} />
+          <circle cx="60" cy="58" r="46" fill={decoy ? "#3a2a1e" : "#7a3a14"} />
+          <circle cx="60" cy="58" r="42" fill={aligned && !decoy ? "url(#mGlassGold)" : "url(#mGlassIdle)"} />
 
           <g clipPath="url(#mClip)">
-            <rect x="18" y="20" width="84" height="32" fill="#ffe9b0" opacity="0.45" />
-            <ellipse cx="44" cy="34" rx="12" ry="4" fill="#ffffff" opacity="0.75" />
-            <ellipse cx="76" cy="42" rx="8" ry="3" fill="#ffffff" opacity="0.55" />
+            <rect x="18" y="20" width="84" height="32" fill="#ffe9b0" opacity={decoy ? 0.15 : 0.45} />
+            <ellipse cx="44" cy="34" rx="12" ry="4" fill="#ffffff" opacity={decoy ? 0.25 : 0.75} />
+            <ellipse cx="76" cy="42" rx="8" ry="3" fill="#ffffff" opacity={decoy ? 0.15 : 0.55} />
           </g>
 
-          <circle cx="60" cy="58" r="41" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity="0.6" />
+          <circle cx="60" cy="58" r="41" fill="none" stroke="#ffffff" strokeWidth="1.5" opacity={decoy ? 0.25 : 0.6} />
           {/* Top marker — clearly shows which way the mirror is facing.
               This is the key visual cue players use to predict reflections. */}
           <polygon
             points="60,14 66,28 54,28"
-            fill={aligned ? "#fff7c2" : "#ffd24d"}
-            stroke="#5a2a0a"
+            fill={aligned && !decoy ? "#fff7c2" : decoy ? "#8a7a6a" : "#ffd24d"}
+            stroke={decoy ? "#5a4a3a" : "#5a2a0a"}
             strokeWidth="1"
           />
-          <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity="0.7" />
-          <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity="0.5" />
+          <ellipse cx="48" cy="46" rx="14" ry="5" fill="#ffffff" opacity={decoy ? 0.2 : 0.7} />
+          <ellipse cx="78" cy="80" rx="6" ry="3" fill="#ffffff" opacity={decoy ? 0.15 : 0.5} />
 
           {[0, 45, 90, 135, 180, 225, 270, 315].map((deg) => {
             const r = 51;
             const x = 60 + Math.cos((deg * Math.PI) / 180) * r;
             const y = 58 + Math.sin((deg * Math.PI) / 180) * r;
-            const color = deg % 90 === 0 ? "#c24a1a" : "#ffd24d";
+            const color = deg % 90 === 0 ? (decoy ? "#6a5a4a" : "#c24a1a") : (decoy ? "#8a7a6a" : "#ffd24d");
             return (
-              <circle key={deg} cx={x} cy={y} r="3" fill={color} stroke="#fff2cc" strokeWidth="0.6" />
+              <circle key={deg} cx={x} cy={y} r="3" fill={color} stroke="#fff2cc" strokeWidth="0.6" opacity={decoy ? 0.5 : 1} />
             );
           })}
 
-          {aligned && (
+          {aligned && !decoy && (
             <circle
               cx="60"
               cy="58"
@@ -159,6 +161,33 @@ function MirrorBase({
               strokeWidth="3"
               opacity="0.95"
             />
+          )}
+
+          {/* Crack mark on decoy mirrors — subtle zigzag across the glass */}
+          {decoy && (
+            <g opacity="0.5">
+              <polyline
+                points="42,38 48,52 56,44 62,58 70,50 78,62"
+                fill="none"
+                stroke="#3a2a1e"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+              <polyline
+                points="48,52 50,60"
+                fill="none"
+                stroke="#3a2a1e"
+                strokeWidth="1"
+                strokeLinecap="round"
+              />
+              <polyline
+                points="62,58 60,66"
+                fill="none"
+                stroke="#3a2a1e"
+                strokeWidth="1"
+                strokeLinecap="round"
+              />
+            </g>
           )}
         </svg>
       </div>

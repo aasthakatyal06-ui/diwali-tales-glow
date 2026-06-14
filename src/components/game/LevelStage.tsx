@@ -131,23 +131,25 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
       {!allAligned &&
         (() => {
           const range = level.ghostRayRange ?? Infinity;
+          const realMirrors = level.mirrors.filter((m) => !m.decoy);
           let reflectCount = 0;
-          return level.mirrors.map((m, i) => {
+          return realMirrors.map((m, i) => {
             if (locked[m.id]) return null;
             if (!reachable.has(m.id)) return null;
             reflectCount++;
             if (reflectCount > range) return null;
             const isAligned = !!aligned[m.id];
-            // When aligned, the ray should point at the actual target (next mirror or first diya)
+            // When aligned, the ray should point at the actual target (next real mirror or first diya)
             // When misaligned, show the current facing direction from the rotation
             let angle: number;
             if (isAligned) {
               const target =
-                i < level.mirrors.length - 1
-                  ? level.mirrors[i + 1].pos
+                i < realMirrors.length - 1
+                  ? realMirrors[i + 1].pos
                   : level.diyas[0]?.pos ?? m.pos;
-              const tdx = target.x - m.pos.x;
-              const tdy = target.y - m.pos.y;
+              // Use pixel-space so angles match the LightBeam (which also uses pixels)
+              const tdx = ((target.x - m.pos.x) / 100) * size.w;
+              const tdy = ((target.y - m.pos.y) / 100) * size.h;
               angle = (Math.atan2(tdy, tdx) * 180) / Math.PI;
             } else {
               const rot = rotations[m.id] ?? 0;
@@ -202,6 +204,7 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           size={mirrorSize}
           rotation={rotations[m.id] ?? 0}
           aligned={!!aligned[m.id]}
+          decoy={!!m.decoy}
           hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id]}
           locked={!!locked[m.id]}

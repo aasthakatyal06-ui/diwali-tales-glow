@@ -134,42 +134,41 @@ const RAW_LEVELS: LevelConfig[] = [
   {
     id: 6,
     title: "The Grand Finale",
-    subtitle: "Read the clues. Clear the path. Light the village!",
-    source: { x: 5, y: 22 },
+    subtitle: "Not every mirror belongs on the path. Find the real ones!",
+    source: { x: 5, y: 26 },
     mirrors: [
-      { id: "m1", pos: { x: 14, y: 22 }, orientations: 8, startIndex: 3, correctIndex: 0 },
-      { id: "m2", pos: { x: 28, y: 38 }, orientations: 8, startIndex: 5, correctIndex: 0, lockedUntil: ["m1"] },
-      { id: "m3", pos: { x: 44, y: 18 }, orientations: 8, startIndex: 7, correctIndex: 0, lockedUntil: ["m2"] },
-      { id: "m4", pos: { x: 58, y: 38 }, orientations: 8, startIndex: 1, correctIndex: 0, lockedUntil: ["m3"] },
-      { id: "m5", pos: { x: 72, y: 18 }, orientations: 8, startIndex: 5, correctIndex: 0, lockedUntil: ["m4"] },
-      { id: "m6", pos: { x: 86, y: 34 }, orientations: 8, startIndex: 3, correctIndex: 0, lockedUntil: ["m5"] },
-      { id: "m7", pos: { x: 94, y: 18 }, orientations: 8, startIndex: 7, correctIndex: 0, lockedUntil: ["m6"] },
+      // Real beam path: m1 → m2 → m3 → m4 → m5 → m6
+      { id: "m1", pos: { x: 14, y: 26 }, orientations: 8, startIndex: 3, correctIndex: 0 },
+      { id: "m2", pos: { x: 30, y: 44 }, orientations: 8, startIndex: 5, correctIndex: 0, lockedUntil: ["m1"] },
+      // Decoy: looks like it could be on the path but never turns golden
+      { id: "decoy1", pos: { x: 42, y: 26 }, orientations: 8, startIndex: 2, correctIndex: 0, decoy: true },
+      { id: "m3", pos: { x: 48, y: 44 }, orientations: 8, startIndex: 7, correctIndex: 0, lockedUntil: ["m2"] },
+      { id: "m4", pos: { x: 66, y: 26 }, orientations: 8, startIndex: 1, correctIndex: 0, lockedUntil: ["m3"] },
+      // Decoy: positioned near m4 to tempt players into spinning it
+      { id: "decoy2", pos: { x: 76, y: 44 }, orientations: 8, startIndex: 4, correctIndex: 0, decoy: true },
+      { id: "m5", pos: { x: 82, y: 26 }, orientations: 8, startIndex: 5, correctIndex: 0, lockedUntil: ["m4"] },
+      { id: "m6", pos: { x: 94, y: 40 }, orientations: 8, startIndex: 3, correctIndex: 0, lockedUntil: ["m5"] },
     ],
     diyas: [
-      { id: "d1", pos: { x: 28, y: 88 }, size: "sm" },
-      { id: "d2", pos: { x: 58, y: 86 }, size: "md" },
-      { id: "d3", pos: { x: 86, y: 88 }, size: "md" },
-      { id: "d4", pos: { x: 96, y: 86 }, size: "lg" },
+      { id: "d1", pos: { x: 30, y: 88 }, size: "sm" },
+      { id: "d2", pos: { x: 66, y: 88 }, size: "md" },
+      { id: "d3", pos: { x: 94, y: 88 }, size: "lg" },
     ],
     elephantPos: { x: 50, y: 100 },
     elephantSize: 240,
     obstacles: [
-      { id: "o1", pos: { x: 21, y: 28 }, kind: "stone", blocking: true },
-      { id: "o2", pos: { x: 36, y: 26 }, kind: "pot", blocking: true, moving: true, range: 4 },
-      { id: "o3", pos: { x: 51, y: 26 }, kind: "stone", blocking: true },
-      { id: "o4", pos: { x: 65, y: 26 }, kind: "pot", blocking: true, moving: true, range: 5 },
-      { id: "o5", pos: { x: 79, y: 26 }, kind: "stone", blocking: true },
-      { id: "o6", pos: { x: 90, y: 26 }, kind: "pot", blocking: true, moving: true, range: 3 },
-      // Decoy obstacles on a lower row — not blocking any mirror path
-      { id: "o7", pos: { x: 40, y: 58 }, kind: "stone", blocking: true, moving: true, range: 6 },
-      { id: "o8", pos: { x: 68, y: 58 }, kind: "pot", blocking: true, moving: true, range: 5 },
+      { id: "o1", pos: { x: 22, y: 34 }, kind: "stone", blocking: true },
+      { id: "o2", pos: { x: 38, y: 42 }, kind: "pot", blocking: true, moving: true, range: 4 },
+      { id: "o3", pos: { x: 56, y: 34 }, kind: "stone", blocking: true },
+      { id: "o4", pos: { x: 74, y: 34 }, kind: "pot", blocking: true, moving: true, range: 5 },
+      { id: "o5", pos: { x: 88, y: 32 }, kind: "stone", blocking: true },
     ],
     hideTapHints: true,
     ghostRayRange: 1,
     brightness: 0.82,
     tutorial: {
       title: "The Grand Finale!",
-      body: "8-direction mirrors and a long locked chain. The dashed lines are your only clues — follow them carefully!",
+      body: "Some mirrors are decoys — they never turn golden! Read the dashed ghost rays carefully. Only the real mirrors will glow.",
     },
   },
 ];
@@ -179,11 +178,15 @@ const RAW_LEVELS: LevelConfig[] = [
 // rotation is always 180° opposite, so the ghost-ray clearly mis-aims and
 // the player has to think about each mirror's true target.
 function withComputedAngles(raw: LevelConfig): LevelConfig {
-  const mirrors = raw.mirrors.map((m, i) => {
+  // Build list of non-decoy mirror positions for angle computation
+  const realMirrors = raw.mirrors.filter((m) => !m.decoy);
+  const mirrors = raw.mirrors.map((m) => {
+    if (m.decoy) return m; // decoys keep their raw startIndex/correctIndex
+    const realIdx = realMirrors.indexOf(m);
     const N = m.orientations ?? 4;
     const target =
-      i < raw.mirrors.length - 1
-        ? raw.mirrors[i + 1].pos
+      realIdx < realMirrors.length - 1
+        ? realMirrors[realIdx + 1].pos
         : raw.diyas[0]?.pos ?? m.pos;
     const dx = target.x - m.pos.x;
     const dy = target.y - m.pos.y;

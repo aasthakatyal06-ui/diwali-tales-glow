@@ -23,7 +23,8 @@ export function useLevelState(level: LevelConfig) {
   const aligned = useMemo(() => {
     const out: Record<string, boolean> = {};
     for (const m of level.mirrors) {
-      out[m.id] = (indices[m.id] ?? m.startIndex) === m.correctIndex;
+      // Decoy mirrors never align — they're not on the beam path
+      out[m.id] = m.decoy ? false : (indices[m.id] ?? m.startIndex) === m.correctIndex;
     }
     return out;
   }, [level.mirrors, indices]);
@@ -31,6 +32,8 @@ export function useLevelState(level: LevelConfig) {
   const locked = useMemo(() => {
     const out: Record<string, boolean> = {};
     for (const m of level.mirrors) {
+      // Decoy mirrors are never locked (they're irrelevant to the beam)
+      if (m.decoy) { out[m.id] = false; continue; }
       out[m.id] = !!m.lockedUntil?.some((id) => !aligned[id]);
     }
     return out;
@@ -78,7 +81,7 @@ export function useLevelState(level: LevelConfig) {
   );
 
   const allMirrorsAligned = useMemo(
-    () => level.mirrors.every((m) => aligned[m.id]),
+    () => level.mirrors.filter((m) => !m.decoy).every((m) => aligned[m.id]),
     [level.mirrors, aligned],
   );
 
@@ -91,6 +94,7 @@ export function useLevelState(level: LevelConfig) {
     const pts: Point[] = [level.source];
     let blocked = false;
     for (const m of level.mirrors) {
+      if (m.decoy) continue;
       pts.push(m.pos);
       if (!aligned[m.id]) {
         const prev = pts[pts.length - 2];
@@ -120,6 +124,7 @@ export function useLevelState(level: LevelConfig) {
   const reachable = useMemo(() => {
     const set = new Set<string>();
     for (const m of level.mirrors) {
+      if (m.decoy) continue;
       set.add(m.id);
       if (!aligned[m.id]) break;
     }

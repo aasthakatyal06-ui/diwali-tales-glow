@@ -5,6 +5,7 @@ import { TitleScreen } from "@/components/game/TitleScreen";
 import { LevelStage } from "@/components/game/LevelStage";
 import { FinaleScene } from "@/components/game/FinaleScene";
 import { IntroScene } from "@/components/game/IntroScene";
+import { HowToPlay } from "@/components/game/HowToPlay";
 import { LEVELS } from "@/game/levels";
 import { unlockAudio, startMusic, stopMusic } from "@/game/audio";
 
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/")({
 type Screen =
   | { kind: "title" }
   | { kind: "intro" }
+  | { kind: "howtoplay" }
   | { kind: "level"; index: number }
   | { kind: "finale" };
 
@@ -44,6 +46,8 @@ function GamePage() {
   }, []);
 
   const startGameplay = useCallback(() => setScreen({ kind: "level", index: 0 }), []);
+
+  const showHowToPlay = useCallback(() => setScreen({ kind: "howtoplay" }), []);
 
   const advance = useCallback(() => {
     setScreen((s) => {
@@ -60,7 +64,7 @@ function GamePage() {
       stopMusic();
       return;
     }
-    if (screen.kind === "intro") startMusic("sad", 0.9);
+    if (screen.kind === "intro" || screen.kind === "howtoplay") startMusic("sad", 0.9);
     else if (screen.kind === "level" || screen.kind === "finale")
       startMusic("festive", 1.0);
   }, [muted, screen.kind]);
@@ -70,7 +74,8 @@ function GamePage() {
   return (
     <main className="fixed inset-0 bg-[oklch(0.06_0.04_270)]">
       {screen.kind === "title" && <TitleScreen onStart={begin} />}
-      {screen.kind === "intro" && <IntroScene onFinish={startGameplay} />}
+      {screen.kind === "intro" && <IntroScene onFinish={showHowToPlay} />}
+      {screen.kind === "howtoplay" && <HowToPlay onReady={startGameplay} />}
       {screen.kind === "level" && (
         <LevelStage key={screen.index} level={LEVELS[screen.index]} onComplete={advance} />
       )}
