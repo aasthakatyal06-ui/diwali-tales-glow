@@ -132,17 +132,30 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         (() => {
           const range = level.ghostRayRange ?? Infinity;
           let reflectCount = 0;
-          return level.mirrors.map((m) => {
-            const rot = rotations[m.id] ?? 0;
+          return level.mirrors.map((m, i) => {
             if (locked[m.id]) return null;
             if (!reachable.has(m.id)) return null;
             reflectCount++;
             if (reflectCount > range) return null;
-            const rad = (rot * Math.PI) / 180;
-            const dx = Math.sin(rad);
-            const dy = -Math.cos(rad);
-            const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
             const isAligned = !!aligned[m.id];
+            // When aligned, the ray should point at the actual target (next mirror or first diya)
+            // When misaligned, show the current facing direction from the rotation
+            let angle: number;
+            if (isAligned) {
+              const target =
+                i < level.mirrors.length - 1
+                  ? level.mirrors[i + 1].pos
+                  : level.diyas[0]?.pos ?? m.pos;
+              const tdx = target.x - m.pos.x;
+              const tdy = target.y - m.pos.y;
+              angle = (Math.atan2(tdy, tdx) * 180) / Math.PI;
+            } else {
+              const rot = rotations[m.id] ?? 0;
+              const rad = (rot * Math.PI) / 180;
+              const dx = Math.sin(rad);
+              const dy = -Math.cos(rad);
+              angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+            }
             return (
               <div
                 key={`ghost-${m.id}`}
