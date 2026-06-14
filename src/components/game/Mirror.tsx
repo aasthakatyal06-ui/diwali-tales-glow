@@ -10,6 +10,7 @@ interface MirrorProps {
   size?: number;
   locked?: boolean;
   autoRotating?: boolean;
+  isLockedIn?: boolean;
   onTap: () => void;
 }
 
@@ -27,18 +28,20 @@ function MirrorBase({
   size = 120,
   locked = false,
   autoRotating = false,
+  isLockedIn = false,
   onTap,
 }: MirrorProps) {
   const w = size;
   const h = size * 1.33;
+  const canTap = !locked;
 
   return (
     <button
       type="button"
-      onClick={() => !locked && !autoRotating && onTap()}
-      className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-20 ${locked || autoRotating ? "cursor-not-allowed" : "cursor-pointer"}`}
+      onClick={() => canTap && onTap()}
+      className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-20 ${canTap ? "cursor-pointer" : "cursor-not-allowed"}`}
       style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-      aria-label={locked ? "Mirror locked" : autoRotating ? "Mirror auto-rotating" : "Tap mirror to rotate"}
+      aria-label={locked ? "Mirror locked" : autoRotating && !isLockedIn ? "Tap to lock in!" : autoRotating ? "Mirror locked in" : "Tap mirror to rotate"}
     >
       {hint && !aligned && !hideHint && (
         <span
@@ -176,11 +179,29 @@ function MirrorBase({
           🔒
         </span>
       )}
-      {autoRotating && !aligned && (
+      {autoRotating && !isLockedIn && (
         <span
-          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#3a1a40]/85 px-3 py-1 text-xs uppercase tracking-widest text-[#ffd994] ring-1 ring-[#ffd994]/60"
+          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs uppercase tracking-widest"
+          style={{
+            background: "linear-gradient(180deg,#ff6a2a,#c24a1a)",
+            color: "#fff5d6",
+            boxShadow: "0 0 16px oklch(0.78 0.22 30 / 0.8)",
+            animation: "breathe 0.6s ease-in-out infinite",
+          }}
         >
-          spinning
+          TAP to lock!
+        </span>
+      )}
+      {autoRotating && isLockedIn && !aligned && (
+        <span
+          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs uppercase tracking-widest"
+          style={{
+            background: "linear-gradient(180deg,#4a2a6a,#2a1a40)",
+            color: "#ffd994",
+            boxShadow: "0 0 10px oklch(0.5 0.1 280 / 0.6)",
+          }}
+        >
+          TAP to release
         </span>
       )}
     </button>
