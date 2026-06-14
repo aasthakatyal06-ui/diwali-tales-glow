@@ -89,36 +89,6 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
   const mirrorSize = Math.max(76, Math.min(120, minDim * 0.13));
   const elephantSize = level.elephantSize ?? Math.max(360, Math.min(560, minDim * 0.7));
 
-  // Pre-compute visible ghost rays — only reachable mirrors within ghostRayRange
-  const ghostRays = useMemo(() => {
-    if (allAligned) return [];
-    const range = level.ghostRayRange ?? Infinity;
-    const rays: { id: string; x: number; y: number; angle: number; aligned: boolean }[] = [];
-    let count = 0;
-    for (const m of level.mirrors) {
-      if (locked[m.id]) continue;
-      if (!reachable.has(m.id)) break;
-      count++;
-      if (count > range) break;
-      const rot = rotations[m.id] ?? 0;
-      const rad = (rot * Math.PI) / 180;
-      const angle = (Math.atan2(-Math.cos(rad), Math.sin(rad)) * 180) / Math.PI;
-      rays.push({ id: m.id, x: m.pos.x, y: m.pos.y, angle, aligned: !!aligned[m.id] });
-    }
-    return rays;
-  }, [allAligned, level.mirrors, level.ghostRayRange, locked, rotations, reachable, aligned]);
-
-  // Beam segment opacity — fades beyond ghostRayRange for fog-of-war
-  const beamOpacity = useMemo(() => {
-    const range = level.ghostRayRange ?? Infinity;
-    if (range === Infinity) return undefined;
-    const count = Math.max(0, beamPath.length - 1);
-    return Array.from({ length: count }, (_, i) => {
-      if (i < range) return 1;
-      return Math.max(0.15, 1 - (i - range) * 0.35);
-    });
-  }, [level.ghostRayRange, beamPath.length]);
-
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden">
       <VillageBackdrop brightness={brightness} />
@@ -146,32 +116,57 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
         path={beamPath}
         visible={beamPath.length > 1}
         stage={size}
-        segmentOpacity={beamOpacity}
+        segmentOpacity={(() => {
+          const range = level.ghostRayRange ?? Infinity;
+          if (range === Infinity) return undefined;
+          const count = Math.max(0, beamPath.length - 1);
+          return Array.from({ length: count }, (_, i) => {
+            if (i < range) return 1;
+            return Math.max(0.15, 1 - (i - range) * 0.35);
+          });
+        })()}
       />
 
-      {/* Ghost preview rays — only for reachable mirrors, limited by ghostRayRange. */}
-      {!allAligned && ghostRays.map((g) => (
-        <div
-          key={g.id}
-          className="absolute pointer-events-none z-[6]"
-          style={{ left: `${g.x}%`, top: `${g.y}%` }}
-        >
-          <div
-            className="absolute origin-left"
-            style={{
-              width: 1600,
-              height: 2,
-              transform: `rotate(${g.angle}deg)`,
-              top: -1,
-              left: 0,
-              background: g.aligned
-                ? "repeating-linear-gradient(90deg, oklch(0.94 0.16 80 / 0.55) 0 10px, transparent 10px 18px)"
-                : "repeating-linear-gradient(90deg, oklch(0.95 0.04 80 / 0.32) 0 6px, transparent 6px 14px)",
-              filter: "blur(0.4px)",
-            }}
-          />
-        </div>
-      ))}
+      {/* Ghost preview rays — only show for reachable mirrors, limited by ghostRayRange. */}
+      {!allAligned &&
+        (() => {
+          const range = level.ghostRayRange ?? Infinity;
+          let reflectCount = 0;
+          return level.mirrors.map((m) => {
+            const rot = rotations[m.id] ?? 0;
+            if (locked[m.id]) return null;
+            if (!reachable.has(m.id)) return null;
+            reflectCount++;
+            if (reflectCount > range) return null;
+            const rad = (rot * Math.PI) / 180;
+            const dx = Math.sin(rad);
+            const dy = -Math.cos(rad);
+            const angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+            const isAligned = !!aligned[m.id];
+            return (
+              <div
+                key={`ghost-${m.id}`}
+                className="absolute pointer-events-none z-[6]"
+                style={{ left: `${m.pos.x}%`, top: `${m.pos.y}%` }}
+              >
+                <div
+                  className="absolute origin-left"
+                  style={{
+                    width: 1600,
+                    height: 2,
+                    transform: `rotate(${angle}deg)`,
+                    top: -1,
+                    left: 0,
+                    background: isAligned
+                      ? "repeating-linear-gradient(90deg, oklch(0.94 0.16 80 / 0.55) 0 10px, transparent 10px 18px)"
+                      : "repeating-linear-gradient(90deg, oklch(0.95 0.04 80 / 0.32) 0 6px, transparent 6px 14px)",
+                    filter: "blur(0.4px)",
+                  }}
+                />
+              </div>
+            );
+          });
+        })()}
 
       {level.diyas.map((d) => (
         <Diya key={d.id} pos={d.pos} lit={litDiyas.has(d.id)} size={d.size} />
