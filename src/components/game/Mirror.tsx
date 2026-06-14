@@ -9,8 +9,6 @@ interface MirrorProps {
   hideHint?: boolean;
   size?: number;
   locked?: boolean;
-  autoRotating?: boolean;
-  isLockedIn?: boolean;
   onTap: () => void;
 }
 
@@ -27,21 +25,18 @@ function MirrorBase({
   hideHint = false,
   size = 120,
   locked = false,
-  autoRotating = false,
-  isLockedIn = false,
   onTap,
 }: MirrorProps) {
   const w = size;
   const h = size * 1.33;
-  const canTap = !locked;
 
   return (
     <button
       type="button"
-      onClick={() => canTap && onTap()}
-      className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-20 ${canTap ? "cursor-pointer" : "cursor-not-allowed"}`}
+      onClick={() => !locked && onTap()}
+      className={`absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none z-20 ${locked ? "cursor-not-allowed" : "cursor-pointer"}`}
       style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-      aria-label={locked ? "Mirror locked" : autoRotating && !isLockedIn ? "Tap to lock in!" : autoRotating ? "Mirror locked in" : "Tap mirror to rotate"}
+      aria-label={locked ? "Mirror locked" : "Tap mirror to rotate"}
     >
       {hint && !aligned && !hideHint && (
         <span
@@ -74,9 +69,7 @@ function MirrorBase({
           width: w,
           height: h,
           transform: `rotate(${rotation}deg)`,
-          transition: autoRotating
-            ? "transform 0.9s linear, filter 0.5s"
-            : "transform 0.55s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
+          transition: "transform 0.55s cubic-bezier(.34,1.56,.64,1), filter 0.5s",
           filter: aligned
             ? "drop-shadow(0 0 38px oklch(0.96 0.18 75 / 1)) drop-shadow(0 0 14px oklch(0.98 0.14 85 / 0.9))"
             : locked
@@ -177,31 +170,6 @@ function MirrorBase({
           aria-hidden
         >
           🔒
-        </span>
-      )}
-      {autoRotating && !isLockedIn && (
-        <span
-          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs uppercase tracking-widest"
-          style={{
-            background: "linear-gradient(180deg,#ff6a2a,#c24a1a)",
-            color: "#fff5d6",
-            boxShadow: "0 0 16px oklch(0.78 0.22 30 / 0.8)",
-            animation: "breathe 0.6s ease-in-out infinite",
-          }}
-        >
-          TAP to lock!
-        </span>
-      )}
-      {autoRotating && isLockedIn && !aligned && (
-        <span
-          className="font-display pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs uppercase tracking-widest"
-          style={{
-            background: "linear-gradient(180deg,#4a2a6a,#2a1a40)",
-            color: "#ffd994",
-            boxShadow: "0 0 10px oklch(0.5 0.1 280 / 0.6)",
-          }}
-        >
-          TAP to release
         </span>
       )}
     </button>

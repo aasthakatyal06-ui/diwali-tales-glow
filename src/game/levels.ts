@@ -22,7 +22,7 @@ const RAW_LEVELS: LevelConfig[] = [
     brightness: 0.0,
     tutorial: {
       title: "Tap to spin the mirror!",
-      body: "Each tap turns it a quarter. Find the angle that points the light at the diya.",
+      body: "Each tap turns it a quarter turn. Keep tapping until the mirror turns golden — that means the direction is correct!",
     },
   },
   {
@@ -41,7 +41,7 @@ const RAW_LEVELS: LevelConfig[] = [
     ghostRayRange: 2,
     tutorial: {
       title: "Think ahead!",
-      body: "The first mirror must pass the light to the second. Picture the path before you tap.",
+      body: "The first mirror must pass the light to the second. Spin each mirror until it turns golden — then the direction is right!",
     },
   },
   {
@@ -99,68 +99,85 @@ const RAW_LEVELS: LevelConfig[] = [
   },
   {
     id: 5,
-    title: "The Zigzag Path",
-    subtitle: "Unlock the chain — but which mirror matters most?",
-    source: { x: 6, y: 22 },
+    title: "The Grand Chain",
+    subtitle: "Seven mirrors, each locked behind the last. No room for guessing.",
+    source: { x: 5, y: 22 },
     mirrors: [
-      { id: "m1", pos: { x: 18, y: 22 }, orientations: 4, startIndex: 2, correctIndex: 0 },
-      { id: "m2", pos: { x: 36, y: 40 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m1"] },
-      { id: "m3", pos: { x: 56, y: 22 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m2"] },
-      { id: "m4", pos: { x: 76, y: 40 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m3"] },
-      { id: "m5", pos: { x: 92, y: 22 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m4"] },
+      { id: "m1", pos: { x: 14, y: 22 }, orientations: 4, startIndex: 2, correctIndex: 0 },
+      { id: "m2", pos: { x: 28, y: 38 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m1"] },
+      { id: "m3", pos: { x: 42, y: 22 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m2"] },
+      { id: "m4", pos: { x: 56, y: 38 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m3"] },
+      { id: "m5", pos: { x: 70, y: 22 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m4"] },
+      { id: "m6", pos: { x: 84, y: 38 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m5"] },
+      { id: "m7", pos: { x: 94, y: 22 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m6"] },
     ],
     diyas: [
-      { id: "d1", pos: { x: 36, y: 88 }, size: "md" },
-      { id: "d2", pos: { x: 76, y: 88 }, size: "md" },
-      { id: "d3", pos: { x: 92, y: 86 }, size: "lg" },
+      { id: "d1", pos: { x: 28, y: 88 }, size: "sm" },
+      { id: "d2", pos: { x: 56, y: 86 }, size: "md" },
+      { id: "d3", pos: { x: 84, y: 88 }, size: "md" },
+      { id: "d4", pos: { x: 96, y: 86 }, size: "lg" },
     ],
     elephantPos: { x: 50, y: 100 },
     elephantSize: 230,
     obstacles: [
-      { id: "o1", pos: { x: 27, y: 30 }, kind: "stone", blocking: true },
-      { id: "o2", pos: { x: 46, y: 30 }, kind: "pot", blocking: true, moving: true, range: 3 },
-      { id: "o3", pos: { x: 66, y: 30 }, kind: "stone", blocking: true },
+      { id: "o1", pos: { x: 21, y: 28 }, kind: "stone", blocking: true },
+      { id: "o2", pos: { x: 35, y: 28 }, kind: "pot", blocking: true, moving: true, range: 3 },
+      { id: "o3", pos: { x: 49, y: 28 }, kind: "stone", blocking: true },
+      { id: "o4", pos: { x: 63, y: 28 }, kind: "pot", blocking: true, moving: true, range: 4 },
+      { id: "o5", pos: { x: 77, y: 28 }, kind: "stone", blocking: true },
+      { id: "o6", pos: { x: 89, y: 28 }, kind: "pot", blocking: true, moving: true, range: 3 },
     ],
     hideTapHints: true,
     ghostRayRange: 1,
     brightness: 0.6,
     tutorial: {
-      title: "Locked mirrors!",
-      body: "A locked mirror won't move until the one before it is aligned. Follow the zigzag!",
+      title: "The Grand Chain!",
+      body: "Seven locked mirrors! Each one unlocks only after the previous mirror is golden. Plan every step!",
     },
   },
   {
     id: 6,
-    title: "Grand Diwali Night",
-    subtitle: "Lock in spinning mirrors at the perfect moment!",
-    source: { x: 5, y: 24 },
+    title: "The Crossroads",
+    subtitle: "Two paths, one beam. Solve both to light the village.",
+    source: { x: 5, y: 26 },
     mirrors: [
-      { id: "m1", pos: { x: 16, y: 24 }, orientations: 4, startIndex: 2, correctIndex: 0 },
-      { id: "m2", pos: { x: 34, y: 24 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m1"], autoRotate: true, autoRotateMs: 900 },
-      { id: "m3", pos: { x: 52, y: 24 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m2"] },
-      { id: "m4", pos: { x: 70, y: 24 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m3"], autoRotate: true, autoRotateMs: 650 },
-      { id: "m5", pos: { x: 88, y: 24 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m4"], autoRotate: true, autoRotateMs: 500 },
+      // Entry mirror — not locked, always solvable first
+      { id: "m1", pos: { x: 18, y: 26 }, orientations: 4, startIndex: 2, correctIndex: 0 },
+      // Upper path (m2 -> m3 -> m4)
+      { id: "m2", pos: { x: 36, y: 16 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m1"] },
+      { id: "m3", pos: { x: 56, y: 16 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m2"] },
+      { id: "m4", pos: { x: 76, y: 16 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m3"] },
+      // Lower path (m5 -> m6 -> m7)
+      { id: "m5", pos: { x: 36, y: 44 }, orientations: 4, startIndex: 1, correctIndex: 0, lockedUntil: ["m1"] },
+      { id: "m6", pos: { x: 56, y: 44 }, orientations: 4, startIndex: 3, correctIndex: 0, lockedUntil: ["m5"] },
+      { id: "m7", pos: { x: 76, y: 44 }, orientations: 4, startIndex: 2, correctIndex: 0, lockedUntil: ["m6"] },
     ],
     diyas: [
-      { id: "d1", pos: { x: 34, y: 86 }, size: "md" },
-      { id: "d2", pos: { x: 52, y: 86 }, size: "md" },
-      { id: "d3", pos: { x: 70, y: 86 }, size: "md" },
-      { id: "d4", pos: { x: 92, y: 86 }, size: "lg" },
+      // Upper path diya
+      { id: "d1", pos: { x: 76, y: 86 }, size: "lg" },
+      // Lower path diya
+      { id: "d2", pos: { x: 56, y: 86 }, size: "md" },
+      // Final celebration diya
+      { id: "d3", pos: { x: 94, y: 86 }, size: "lg" },
     ],
     elephantPos: { x: 50, y: 100 },
     elephantSize: 240,
     obstacles: [
-      { id: "o1", pos: { x: 25, y: 24 }, kind: "stone", blocking: true, moving: true, range: 4 },
-      { id: "o2", pos: { x: 43, y: 24 }, kind: "pot", blocking: true, moving: true, range: 5 },
-      { id: "o3", pos: { x: 61, y: 24 }, kind: "stone", blocking: true, moving: true, range: 3 },
-      { id: "o4", pos: { x: 79, y: 24 }, kind: "pot", blocking: true, moving: true, range: 4 },
+      // Upper path obstacles
+      { id: "o1", pos: { x: 46, y: 16 }, kind: "stone", blocking: true },
+      { id: "o2", pos: { x: 66, y: 16 }, kind: "pot", blocking: true, moving: true, range: 4 },
+      // Lower path obstacles
+      { id: "o3", pos: { x: 46, y: 44 }, kind: "pot", blocking: true, moving: true, range: 3 },
+      { id: "o4", pos: { x: 66, y: 44 }, kind: "stone", blocking: true },
+      // Decoy obstacle in the middle
+      { id: "o5", pos: { x: 86, y: 30 }, kind: "stone", blocking: true, moving: true, range: 5 },
     ],
     hideTapHints: true,
     ghostRayRange: 1,
     brightness: 0.82,
     tutorial: {
-      title: "The final test!",
-      body: "Spinning mirrors! Tap at the right moment to lock them in place. Time it perfectly!",
+      title: "The Crossroads!",
+      body: "The beam splits into two paths! Solve BOTH — upper and lower — to light every diya. Plan your route!",
     },
   },
 ];
@@ -183,9 +200,9 @@ function withComputedAngles(raw: LevelConfig): LevelConfig {
     const theta = Math.atan2(dx, -dy);
     let correct = Math.round((theta / (2 * Math.PI)) * N);
     correct = ((correct % N) + N) % N;
-    // Auto-rotate mirrors start 1 step off so the player must time their tap.
-    // Regular mirrors start 180° off.
-    const start = m.autoRotate ? (correct + 1) % N : (correct + 2) % N;
+    // Always start 180° off from correct so the ghost-ray clearly mis-aims
+    // and the player has to think about each mirror's true target.
+    const start = (correct + 2) % N;
     return { ...m, correctIndex: correct, startIndex: start };
   });
   return { ...raw, mirrors };

@@ -43,7 +43,7 @@ function markTutorialSeen(id: number) {
 
 export function LevelStage({ level, onComplete }: LevelStageProps) {
   const { ref, size } = useStageSize<HTMLDivElement>();
-  const { aligned, rotations, cleared, locked, lockedIn, tapMirror, tapObstacle, allAligned, beamPath, litDiyas, reachable } =
+  const { aligned, rotations, cleared, locked, tapMirror, tapObstacle, allAligned, beamPath, litDiyas, reachable } =
     useLevelState(level);
   const [celebrating, setCelebrating] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
@@ -192,8 +192,6 @@ export function LevelStage({ level, onComplete }: LevelStageProps) {
           hideHint={level.hideTapHints}
           hint={level.hintMirrorId === m.id && !aligned[m.id]}
           locked={!!locked[m.id]}
-          autoRotating={!!m.autoRotate}
-          isLockedIn={!!lockedIn[m.id]}
           onTap={() => tapMirror(m.id)}
         />
       ))}
